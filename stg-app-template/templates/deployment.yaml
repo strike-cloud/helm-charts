@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.appName }}
+    env: {{ .Values.envShort }}
+    admission.datadoghq.com/enabled: "true"
+    tags.datadoghq.com/env: {{ .Values.envShort }}
+    tags.datadoghq.com/service: {{ .Values.appName }}
+    tags.datadoghq.com/version: {{ .Values.appVersion | quote  }}
+    # timestamp: "{{ date "20060102150405" now }}"
+spec:
+  progressDeadlineSeconds: 300
+  revisionHistoryLimit: 3
+{{- if not .Values.hpa.enabled }}
+  replicas: {{ .Values.hpa.minReplicas }}
+{{- end }}
+  selector:
+    matchLabels:
+      app:  {{ .Values.appName }}
+  strategy:
+    type: {{ .Values.deployment.strategy }}
+    rollingUpdate:
+      maxUnavailable: {{ .Values.deployment.maxUnavailable }}
+      maxSurge: {{ .Values.deployment.maxSurge }}
+  template:
+    metadata:
+      labels:
+        app:  {{ .Values.appName }}
+        env: {{ .Values.envShort }}
+        version: {{ .Values.appVersion | quote  }}
+        admission.datadoghq.com/enabled: "true"
+        tags.datadoghq.com/env: {{ .Values.envShort }}
+        tags.datadoghq.com/service: {{ .Values.appName }}
+        tags.datadoghq.com/version: {{ .Values.appVersion | quote  }}
+        # timestamp: "{{ date "20060102150405" now }}"
+      annotations:
+        # timestamp: "{{ date "20060102150405" now }}"
+{{- if .Values.vault.agentInject}}
+        vault.hashicorp.com/auth-path: {{ .Values.vault.authPath | quote }}
+        vault.hashicorp.com/auth-type: kubernetes
+        vault.hashicorp.com/agent-inject: {{ .Values.vault.agentInject | quote }}
+        vault.hashicorp.com/role: {{ .Values.vault.role | quote }}
+        vault.hashicorp.com/agent-inject-secret-credentials.txt: {{ .Values.vault.secretCredentials | quote }}
+        vault.hashicorp.com/log-level: debug
+        vault.hashicorp.com/tls-skip-verify: 'true'
+{{- if .Values.vault.namespace.enable }}
+        vault.hashicorp.com/namespace: {{ .Values.vault.namespace.name }}
+{{- end }}
+{{- end }}
+{{- if .Values.datadog.logs.enabled}}
+        ad.datadoghq.com/{{ .Values.appName }}.logs: '[{ "source":"{{ .Values.datadog.clusterName }}", "service":"{{ .Values.appName }}" }]'
+{{- end }}
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: {{ .Values.appName }}
+              # timestamp: {{ date "20060102150405" now | quote }}
+      terminationGracePeriodSeconds: 60
+      serviceAccountName: {{ .Values.serviceAccountName }}
+      containers:
+      - name:  {{ .Values.appName }}
+        image: {{ .Values.image }}:{{ .Values.appVersion }}
+        imagePullPolicy: {{.Values.imagePullPolicy}}
+        {{- if .Values.configmap.enabled}}
+        volumeMounts:
+        - name: cm-volume
+          mountPath: /etc/configmap
+        {{- end }}
+        resources:
+          limits:
+            cpu: "{{ .Values.resources.limits.cpu }}"
+            memory: "{{ .Values.resources.limits.memory }}"
+          requests:
+            cpu: "{{ .Values.resources.limits.cpu }}"
+            memory: "{{ .Values.resources.limits.memory }}"
+        ports:
+        - containerPort: {{ .Values.appPort }}
+        readinessProbe:
+          successThreshold: {{ .Values.healthcheck.readinessSuccess }}
+          failureThreshold: {{ .Values.healthcheck.readinessFailure }}
+          httpGet:
+            path: {{ .Values.healthcheck.path }}
+            port: {{ .Values.appPort }}
+          initialDelaySeconds: {{ .Values.healthcheck.readinessDelay }}
+          periodSeconds: {{ .Values.healthcheck.period }}
+          timeoutSeconds: {{ .Values.healthcheck.timeout }}
+        livenessProbe:
+          successThreshold: {{ .Values.healthcheck.livenessSuccess }}
+          failureThreshold: {{ .Values.healthcheck.livenessFailure }}
+          httpGet:
+            path:  {{ .Values.healthcheck.path }}
+            port: {{ .Values.appPort }}
+          initialDelaySeconds: {{ .Values.healthcheck.livenessDelay }}
+          periodSeconds: {{ .Values.healthcheck.period }}
+          timeoutSeconds: {{ .Values.healthcheck.timeout }}
+        startupProbe:
+          httpGet:
+            path: {{ .Values.healthcheck.path }}
+            port: {{ .Values.appPort }}
+          failureThreshold: 30
+          periodSeconds: {{ .Values.healthcheck.period }}
+        lifecycle:
+          preStop:
+            exec:
+              command:
+                - sh
+                - -c
+                - sleep 45
+        env:
+        {{- range $key, $value := .Values.environments }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+      {{- if .Values.configmap.enabled}}
+      volumes:
+        - name: cm-volume
+          configMap:
+            name: {{ .Values.configmap.name }}
+      {{- end }}

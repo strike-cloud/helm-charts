@@ -1,0 +1,5 @@
+live-app-template:
+  - charts/live-app-template/**/*
+
+stg-app-template:
+  - charts/stg-app-template/**/*

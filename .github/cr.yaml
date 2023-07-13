@@ -3,3 +3,5 @@ git-repo: helm-charts
 git-base-url: https://api.github.com/
 git-upload-url: https://uploads.github.com/
 charts-repo: https://strike-cloud.github.io/helm-charts/
+index-path: index.yaml
+skip-existing: false

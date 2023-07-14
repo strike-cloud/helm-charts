@@ -40,7 +40,8 @@ resources:
     memory: 1024Mi
 appPort: 8080
 
-replicaCount: 2
+replicaCount: 1
+
 deployment:
   maxUnavailable: 0%
   maxSurge: 100%
@@ -50,8 +51,8 @@ deployment:
       example: thislabel
 
 hpa:
-  enabled: true
-  minReplicas: 2
+  enabled: false
+  minReplicas: 1
   maxReplicas: 10
   resourceName: cpu
   targetType: Utilization
@@ -81,6 +82,6 @@ vault:
   authPath: auth/stg-core-cluster
   role: devweb-app
   secretCredentials: secrets/auth-service/stg
-  namespace: 
+  namespace:
     enable: false
     name: admin

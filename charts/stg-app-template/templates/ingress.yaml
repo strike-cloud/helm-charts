@@ -18,7 +18,7 @@ metadata:
     alb.ingress.kubernetes.io/load-balancer-attributes: routing.http.preserve_host_header.enabled=true
     alb.ingress.kubernetes.io/load-balancer-attributes: routing.http.xff_header_processing.mode=preserve
     alb.ingress.kubernetes.io/actions.{{ .Values.appName }}: '{ "Type": "forward", "ForwardConfig": { "TargetGroups": [ { "Weight": 100, "ServiceName": "{{ .Values.appName }}", "ServicePort": "{{ .Values.service.port }}" } ] } }'
-    external-dns.alpha.kubernetes.io/hostname: {{ .Values.appName }}.{{ .Values.envShort }}.{{ .Values.ingress.domain }}
+    external-dns.alpha.kubernetes.io/hostname: {{ if ne .Values.ingress.domain "preview.strike.sh" }}{{ .Values.appName }}.{{ .Values.envShort }}.{{ .Values.ingress.domain }}{{ else }}{{ .Values.appName }}.{{ .Values.ingress.domain }}{{ end }}
   labels:
     app: {{ .Values.appName }}
 spec:
@@ -28,7 +28,7 @@ spec:
   #     port:
   #       number: {{ .Values.service.port }}
   rules:
-  - host: {{ .Values.appName }}.{{ .Values.envShort }}.{{ .Values.ingress.domain }}
+  - host: {{ if ne .Values.ingress.domain "preview.strike.sh" }}{{ .Values.appName }}.{{ .Values.envShort }}.{{ .Values.ingress.domain }}{{ else }}{{ .Values.appName }}.{{ .Values.ingress.domain }}{{ end }}
     http:
       paths:
         - path: /

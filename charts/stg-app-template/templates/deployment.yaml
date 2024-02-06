@@ -7,10 +7,15 @@ metadata:
     app: {{ .Values.appName }}
     env: {{ .Values.envShort }}
     admission.datadoghq.com/enabled: "true"
+    admission.datadoghq.com/config.mode: "socket"
     tags.datadoghq.com/env: {{ .Values.envShort }}
     tags.datadoghq.com/service: {{ .Values.appName }}
     tags.datadoghq.com/version: {{ .Values.appVersion | quote  }}
-    # timestamp: "{{ date "20060102150405" now }}"
+  annotations:
+    link.argocd.argoproj.io/repository: 'Repository|https://github.com/strikesecurity/{{ .Release.Name }}'
+    link.argocd.argoproj.io/repository-actions: 'Repository|https://github.com/strikesecurity/{{ .Release.Name }}.git/actions'
+
+
 spec:
   progressDeadlineSeconds: 300
   revisionHistoryLimit: 3
@@ -63,7 +68,6 @@ spec:
               app: {{ .Values.appName }}
               # timestamp: {{ date "20060102150405" now | quote }}
       terminationGracePeriodSeconds: 60
-      serviceAccountName: {{ .Values.serviceAccountName }}
       containers:
       - name:  {{ .Values.appName }}
         image: {{ .Values.image }}:{{ .Values.appVersion }}
@@ -114,6 +118,22 @@ spec:
                 - -c
                 - sleep 45
         env:
+        - name: DD_AGENT_HOST
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: DD_ENV
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['tags.datadoghq.com/env']
+        - name: DD_SERVICE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['tags.datadoghq.com/service']
+        - name: DD_VERSION
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['tags.datadoghq.com/version']
         {{- range $key, $value := .Values.environments }}
         - name: {{ $key }}
           value: {{ $value | quote }}

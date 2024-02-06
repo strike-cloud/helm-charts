@@ -11,7 +11,10 @@ metadata:
     tags.datadoghq.com/env: {{ .Values.envShort }}
     tags.datadoghq.com/service: {{ .Values.appName }}
     tags.datadoghq.com/version: {{ .Values.appVersion | quote  }}
-    # timestamp: "{{ date "20060102150405" now }}"
+  annotations:
+    link.argocd.argoproj.io/repository: 'Repository|https://github.com/strikesecurity/{{ .Release.Name }}'
+    link.argocd.argoproj.io/repository-actions: 'Repository|https://github.com/strikesecurity/{{ .Release.Name }}.git/actions'
+
 
 spec:
   progressDeadlineSeconds: 300

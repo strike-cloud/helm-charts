@@ -51,10 +51,9 @@ hpa:
   enabled: true
   minReplicas: 2
   maxReplicas: 10
-  resourceName: cpu
-  targetType: Utilization
-  targetAvgUtilization: 50
-  targetCPUUtilizationPercentage: 50
+  cpu: 80
+  memory:
+  requests:
 
 ingress:
   enabled: true

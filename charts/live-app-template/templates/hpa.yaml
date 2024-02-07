@@ -2,14 +2,14 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ .Release.Name }}-hpa
+  name: {{ .Values.appName }}
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ .Release.Name }}-deployment
+    name: {{ .Values.appName }}
   {{- if eq ( int .Values.hpa.minReplicas ) 1 }}
   minReplicas: {{ .Values.hpa.minReplicas }}
   {{else }}

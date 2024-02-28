@@ -145,6 +145,12 @@ spec:
             name: {{ .Values.configmap.name }}
       {{- end }}
       affinity:
-        {{- with .Values.deployment.affinity }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                      - "{{ .Values.appName }}"
+              topologyKey: "kubernetes.io/hostname"

@@ -43,6 +43,16 @@ deployment:
   maxUnavailable: 0%
   maxSurge: 100%
   strategy: RollingUpdate
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: "app"
+                operator: In
+                values:
+                  - "{{ .Values.appName }}"
+          topologyKey: "kubernetes.io/hostname"
   specs:
     labels:
       example: thislabel

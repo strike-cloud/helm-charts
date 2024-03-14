@@ -79,7 +79,9 @@ spec:
         {{- end }}
         resources:
           limits:
+            {{- if .Values.resources.limits.cpu}}
             cpu: "{{ .Values.resources.limits.cpu }}"
+            {{- end }}
             memory: "{{ .Values.resources.limits.memory }}"
           requests:
             cpu: "{{ .Values.resources.requests.cpu }}"

@@ -14,6 +14,8 @@ metadata:
   annotations:
     link.argocd.argoproj.io/repository: 'Repository|https://github.com/strikesecurity/{{ .Release.Name }}'
     link.argocd.argoproj.io/repository-actions: 'Repository|https://github.com/strikesecurity/{{ .Release.Name }}.git/actions'
+    elastic.co/dataset: kubernetes.container_logs.apps
+    elastic.co/namespace: apps
 
 
 spec:

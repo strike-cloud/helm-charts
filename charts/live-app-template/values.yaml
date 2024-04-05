@@ -38,9 +38,10 @@ resources:
 appPort: 8080
 
 replicaCount: 2
+
 deployment:
-  maxUnavailable: 0%
-  maxSurge: 100%
+  maxUnavailable: 1
+  maxSurge: 0
   strategy: RollingUpdate
   specs:
     labels:

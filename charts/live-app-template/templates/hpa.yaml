@@ -46,11 +46,11 @@ spec:
         type: AverageValue
         averageValue: {{ .Values.hpa.requests }}
   {{- end }}
-{{- if eq ( int .Values.hpa.minReplicas ) ( int .Values.hpa.maxReplicas ) }}
-behavior:
-  scaleDown:
-    selectPolicy: Disabled
-  scaleUp:
-    selectPolicy: Disabled
-{{- end }}
+  {{- if eq ( int .Values.hpa.minReplicas ) ( int .Values.hpa.maxReplicas ) }}
+  behavior:
+    scaleDown:
+      selectPolicy: Disabled
+    scaleUp:
+      selectPolicy: Disabled
+  {{- end }}
 {{- end }}

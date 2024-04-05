@@ -3,6 +3,16 @@ entries:
   live-app-template:
   - apiVersion: v1
     appVersion: 2.0.0
+    created: "2024-04-05T18:28:54.793963216Z"
+    description: A Helm chart for Kubernetes
+    digest: 29629afdcd1c63e106288fc046ad8a974845995dac1dd4912f653b0f7c2095e4
+    name: live-app-template
+    type: application
+    urls:
+    - https://github.com/strike-cloud/helm-charts/releases/download/live-app-template-1.0.19/live-app-template-1.0.19.tgz
+    version: 1.0.19
+  - apiVersion: v1
+    appVersion: 2.0.0
     created: "2024-04-05T18:04:49.705864596Z"
     description: A Helm chart for Kubernetes
     digest: b1dc3f6e97a4db0af142b22627ed9269f2353581f062bf1966fdd43b9f69c627
@@ -132,6 +142,16 @@ entries:
     - https://github.com/strike-cloud/helm-charts/releases/download/live-app-template-1.0.0/live-app-template-1.0.0.tgz
     version: 1.0.0
   stg-app-template:
+  - apiVersion: v1
+    appVersion: 2.0.0
+    created: "2024-04-05T18:28:54.875136805Z"
+    description: A Helm chart for Kubernetes
+    digest: c70b90c85f1cd0e184def0d9fe34926a455057eb92ed18f24d7625e79fc9930b
+    name: stg-app-template
+    type: application
+    urls:
+    - https://github.com/strike-cloud/helm-charts/releases/download/stg-app-template-1.0.17/stg-app-template-1.0.17.tgz
+    version: 1.0.17
   - apiVersion: v1
     appVersion: 2.0.0
     created: "2024-04-05T18:04:49.795993023Z"
@@ -292,4 +312,4 @@ entries:
     urls:
     - https://github.com/strike-cloud/helm-charts/releases/download/stg-app-template-1.0.0/stg-app-template-1.0.0.tgz
     version: 1.0.0
-generated: "2024-04-05T18:04:49.796577289Z"
+generated: "2024-04-05T18:28:54.875424885Z"

@@ -58,8 +58,8 @@ spec:
 {{- if .Values.datadog.logs.enabled}}
         ad.datadoghq.com/{{ .Values.appName }}.logs: '[{ "source":"{{ .Values.datadog.clusterName }}", "service":"{{ .Values.appName }}" }]'
 {{- end }}
-        elastic.co/dataset: kubernetes.container_logs.apps
-        elastic.co/namespace: apps
+        elastic.co/dataset: kubernetes.container_logs.apps-stg
+        elastic.co/namespace: apps-stg
     spec:
       topologySpreadConstraints:
         - maxSkew: 1

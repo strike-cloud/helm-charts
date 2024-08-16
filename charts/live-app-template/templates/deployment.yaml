@@ -116,11 +116,8 @@ spec:
           periodSeconds: {{ .Values.healthcheck.period }}
         lifecycle:
           preStop:
-            exec:
-              command:
-                - sh
-                - -c
-                - sleep 45
+            sleep:
+              seconds: 60
         env:
         - name: DD_AGENT_HOST
           valueFrom:

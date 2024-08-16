@@ -114,13 +114,6 @@ spec:
             port: {{ .Values.appPort }}
           failureThreshold: 30
           periodSeconds: {{ .Values.healthcheck.period }}
-        lifecycle:
-          preStop:
-            exec:
-              command:
-                - sh
-                - -c
-                - sleep 45
         env:
         - name: DD_AGENT_HOST
           valueFrom:

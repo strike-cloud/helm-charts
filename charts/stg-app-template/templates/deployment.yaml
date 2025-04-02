@@ -149,7 +149,7 @@ spec:
             name: {{ .Values.configmap.name }}
         {{- end }}
         {{- if .Values.secrets.enabled}}
-        - name: secrets
+        - name: {{ .Values.appName }}
           secret:
             secretName: {{ .Values.appName }}
         {{- end }}

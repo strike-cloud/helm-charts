@@ -74,10 +74,16 @@ spec:
       - name:  {{ .Values.appName }}
         image: {{ .Values.image }}:{{ .Values.appVersion }}
         imagePullPolicy: {{.Values.imagePullPolicy}}
-        {{- if .Values.configmap.enabled}}
+        {{- if or (.Values.configmap.enabled) (.Values.secrets.enabled) }}
         volumeMounts:
-        - name: cm-volume
-          mountPath: /etc/configmap
+          {{- if .Values.configmap.enabled}}
+          - mountPath: /etc/configmap
+            name: cm-volume
+          {{- end }}
+          {{- if .Values.secrets.enabled}}
+          - mountPath: /etc/secrets
+            name: {{ .Values.appName }}
+          {{- end }}
         {{- end }}
         resources:
           limits:
@@ -139,11 +145,18 @@ spec:
         - name: {{ $key }}
           value: {{ $value | quote }}
         {{- end }}
-      {{- if .Values.configmap.enabled}}
+      {{- if or (.Values.configmap.enabled) (.Values.secrets.enabled) }}
       volumes:
+        {{- if .Values.configmap.enabled}}
         - name: cm-volume
           configMap:
             name: {{ .Values.configmap.name }}
+        {{- end }}
+        {{- if .Values.secrets.enabled}}
+        - name: {{ .Values.appName }}
+          secret:
+            secretName: {{ .Values.appName }}
+        {{- end }}
       {{- end }}
       affinity:
         podAntiAffinity:

@@ -82,7 +82,7 @@ spec:
           {{- end }}
           {{- if .Values.secrets.enabled}}
           - mountPath: /etc/secrets
-            name: {{ .Values.appName }}
+            name: {{ if .Values.secrets.appName }}{{ .Values.secrets.appName }}{{ else }}{{ .Values.appName }}{{ end }}
           {{- end }}
         {{- end }}
         resources:
@@ -149,8 +149,8 @@ spec:
             name: {{ .Values.configmap.name }}
         {{- end }}
         {{- if .Values.secrets.enabled}}
-        - name: {{ .Values.appName }}
+        - name: {{ if .Values.secrets.appName }}{{ .Values.secrets.appName }}{{ else }}{{ .Values.appName }}{{ end }}
           secret:
-            secretName: {{ .Values.appName }}
+            secretName: {{ if .Values.secrets.appName }}{{ .Values.secrets.appName }}{{ else }}{{ .Values.appName }}{{ end }}
         {{- end }}
       {{- end }}

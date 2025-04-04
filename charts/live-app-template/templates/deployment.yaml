@@ -15,7 +15,6 @@ metadata:
     link.argocd.argoproj.io/repository: 'Repository|https://github.com/strikesecurity/{{ .Release.Name }}'
     link.argocd.argoproj.io/repository-actions: 'Repository|https://github.com/strikesecurity/{{ .Release.Name }}.git/actions'
 
-
 spec:
   progressDeadlineSeconds: 300
   revisionHistoryLimit: 3
@@ -24,7 +23,7 @@ spec:
 {{- end }}
   selector:
     matchLabels:
-      app:  {{ .Values.appName }}
+      app:  {{ if and .Values.secrets.enabled .Values.secrets.appName }}{{ .Values.secrets.appName }}{{ else }}{{ .Values.appName }}{{ end }}
   strategy:
     type: {{ .Values.deployment.strategy }}
     rollingUpdate:
@@ -33,7 +32,7 @@ spec:
   template:
     metadata:
       labels:
-        app:  {{ .Values.appName }}
+        app:  {{ if and .Values.secrets.enabled .Values.secrets.appName }}{{ .Values.secrets.appName }}{{ else }}{{ .Values.appName }}{{ end }}
         env: {{ .Values.envShort }}
         version: {{ .Values.appVersion | quote  }}
         admission.datadoghq.com/enabled: "true"
@@ -82,7 +81,7 @@ spec:
           {{- end }}
           {{- if .Values.secrets.enabled}}
           - mountPath: /etc/secrets
-            name: {{ .Values.appName }}
+            name: {{ if .Values.secrets.appName }}{{ .Values.secrets.appName }}{{ else }}{{ .Values.appName }}{{ end }}
           {{- end }}
         {{- end }}
         resources:
@@ -153,9 +152,9 @@ spec:
             name: {{ .Values.configmap.name }}
         {{- end }}
         {{- if .Values.secrets.enabled}}
-        - name: {{ .Values.appName }}
+        - name: {{ if .Values.secrets.appName }}{{ .Values.secrets.appName }}{{ else }}{{ .Values.appName }}{{ end }}
           secret:
-            secretName: {{ .Values.appName }}
+            secretName: {{ if .Values.secrets.appName }}{{ .Values.secrets.appName }}{{ else }}{{ .Values.appName }}{{ end }}
         {{- end }}
       {{- end }}
       affinity:

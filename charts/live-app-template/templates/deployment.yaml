@@ -23,7 +23,7 @@ spec:
 {{- end }}
   selector:
     matchLabels:
-      app:  {{ if and .Values.secrets.enabled .Values.secrets.appName }}{{ .Values.secrets.appName }}{{ else }}{{ .Values.appName }}{{ end }}
+      app:  {{ .Values.appName }}
   strategy:
     type: {{ .Values.deployment.strategy }}
     rollingUpdate:
@@ -32,7 +32,7 @@ spec:
   template:
     metadata:
       labels:
-        app:  {{ if and .Values.secrets.enabled .Values.secrets.appName }}{{ .Values.secrets.appName }}{{ else }}{{ .Values.appName }}{{ end }}
+        app:  {{ .Values.appName }}
         env: {{ .Values.envShort }}
         version: {{ .Values.appVersion | quote  }}
         admission.datadoghq.com/enabled: "true"

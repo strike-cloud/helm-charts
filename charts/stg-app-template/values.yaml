@@ -4,6 +4,8 @@
 
 image: 317814227242.dkr.ecr.us-east-2.amazonaws.com
 
+appVersion: latest
+
 namespace: apps
 
 envShort: stg
@@ -12,12 +14,16 @@ appName: app-template
 
 imagePullPolicy: Always
 
+secrets:
+  enabled: false
+
 service:
   enabled: true
   type: ClusterIP
   port: 80
 
 healthcheck:
+  type: http
   path: /
   readinessSuccess: 2
   readinessFailure: 2
@@ -63,20 +69,9 @@ ingress:
   group: "core"
   certificate: arn:aws:acm:us-east-2:317814227242:certificate/614d5719-349a-4933-acce-ddf7d4239ce8
 
-datadog:
-  clusterName: env-template-cluster
-  logs:
-    enabled: true
+environments:
+  env: stg
 
 configmap:
   enabled: false
   name: test-configmap
-
-vault:
-  agentInject: false
-  authPath: auth/stg-core-cluster
-  role: devweb-app
-  secretCredentials: secrets/auth-service/stg
-  namespace:
-    enable: false
-    name: admin

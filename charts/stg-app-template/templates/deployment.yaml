@@ -6,11 +6,6 @@ metadata:
   labels:
     app: {{ .Values.appName }}
     env: {{ .Values.envShort }}
-    admission.datadoghq.com/enabled: "true"
-    admission.datadoghq.com/config.mode: "socket"
-    tags.datadoghq.com/env: {{ .Values.envShort }}
-    tags.datadoghq.com/service: {{ .Values.appName }}
-    tags.datadoghq.com/version: {{ .Values.appVersion | quote  }}
   annotations:
     link.argocd.argoproj.io/repository: 'Repository|https://github.com/strikesecurity/{{ .Release.Name }}'
     link.argocd.argoproj.io/repository-actions: 'Repository|https://github.com/strikesecurity/{{ .Release.Name }}.git/actions'
@@ -43,21 +38,6 @@ spec:
         # timestamp: "{{ date "20060102150405" now }}"
       annotations:
         # timestamp: "{{ date "20060102150405" now }}"
-{{- if .Values.vault.agentInject}}
-        vault.hashicorp.com/auth-path: {{ .Values.vault.authPath | quote }}
-        vault.hashicorp.com/auth-type: kubernetes
-        vault.hashicorp.com/agent-inject: {{ .Values.vault.agentInject | quote }}
-        vault.hashicorp.com/role: {{ .Values.vault.role | quote }}
-        vault.hashicorp.com/agent-inject-secret-credentials.txt: {{ .Values.vault.secretCredentials | quote }}
-        vault.hashicorp.com/log-level: debug
-        vault.hashicorp.com/tls-skip-verify: 'true'
-{{- if .Values.vault.namespace.enable }}
-        vault.hashicorp.com/namespace: {{ .Values.vault.namespace.name }}
-{{- end }}
-{{- end }}
-{{- if .Values.datadog.logs.enabled}}
-        ad.datadoghq.com/{{ .Values.appName }}.logs: '[{ "source":"{{ .Values.datadog.clusterName }}", "service":"{{ .Values.appName }}" }]'
-{{- end }}
         elastic.co/dataset: kubernetes.container_logs.apps-stg
         elastic.co/namespace: apps-stg
     spec:
@@ -99,7 +79,7 @@ spec:
         readinessProbe:
           successThreshold: {{ .Values.healthcheck.readinessSuccess }}
           failureThreshold: {{ .Values.healthcheck.readinessFailure }}
-          {{- if eq ( .Values.healcheck.type ) "http" }}
+          {{- if eq ( .Values.healthcheck.type ) "http" }}
           httpGet:
             path: {{ .Values.healthcheck.path }}
             port: {{ .Values.appPort }}
@@ -117,7 +97,7 @@ spec:
         livenessProbe:
           successThreshold: {{ .Values.healthcheck.livenessSuccess }}
           failureThreshold: {{ .Values.healthcheck.livenessFailure }}
-          {{- if eq ( .Values.healcheck.type ) "http" }}
+          {{- if eq ( .Values.healthcheck.type ) "http" }}
           httpGet:
             path: {{ .Values.healthcheck.path }}
             port: {{ .Values.appPort }}
@@ -133,7 +113,7 @@ spec:
           periodSeconds: {{ .Values.healthcheck.period }}
           timeoutSeconds: {{ .Values.healthcheck.timeout }}
         startupProbe:
-          {{- if eq ( .Values.healcheck.type ) "http" }}
+          {{- if eq ( .Values.healthcheck.type ) "http" }}
           httpGet:
             path: {{ .Values.healthcheck.path }}
             port: {{ .Values.appPort }}
@@ -148,22 +128,6 @@ spec:
           failureThreshold: 30
           periodSeconds: {{ .Values.healthcheck.period }}
         env:
-        - name: DD_AGENT_HOST
-          valueFrom:
-            fieldRef:
-              fieldPath: status.hostIP
-        - name: DD_ENV
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.labels['tags.datadoghq.com/env']
-        - name: DD_SERVICE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.labels['tags.datadoghq.com/service']
-        - name: DD_VERSION
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.labels['tags.datadoghq.com/version']
         {{- range $key, $value := .Values.environments }}
         - name: {{ $key }}
           value: {{ $value | quote }}

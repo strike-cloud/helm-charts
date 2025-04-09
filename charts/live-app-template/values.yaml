@@ -4,6 +4,8 @@
 
 image: 790809641511.dkr.ecr.us-east-1.amazonaws.com
 
+appVersion: latest
+
 namespace: apps
 
 envShort: live
@@ -12,12 +14,16 @@ appName: app-template
 
 imagePullPolicy: Always
 
+secrets:
+  enabled: false
+
 service:
   enabled: true
   type: ClusterIP
   port: 80
 
 healthcheck:
+  type: http
   path: /
   readinessSuccess: 2
   readinessFailure: 2
@@ -63,20 +69,9 @@ ingress:
   group: "core"
   certificate: arn:aws:acm:us-east-1:790809641511:certificate/5a96472b-2566-49ca-8b3e-25349881f936
 
-datadog:
-  clusterName: env-template-cluster
-  logs:
-    enabled: true
+environments:
+  env: live
 
 configmap:
   enabled: false
   name: test-configmap
-
-vault:
-  agentInject: false
-  authPath: auth/live-core-cluster
-  role: devweb-app
-  secretCredentials: secrets/auth-service/live
-  namespace: 
-    enable: false
-    name: admin

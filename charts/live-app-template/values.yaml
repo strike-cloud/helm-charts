@@ -2,9 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-image: example-app.dkr.ecr.us-east-1.amazonaws.com/example-app:latest
-
-appVersion: 0.0.1
+image: 790809641511.dkr.ecr.us-east-1.amazonaws.com
 
 namespace: apps
 
@@ -15,6 +13,7 @@ appName: app-template
 imagePullPolicy: Always
 
 service:
+  enabled: true
   type: ClusterIP
   port: 80
 

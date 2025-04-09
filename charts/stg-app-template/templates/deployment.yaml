@@ -72,7 +72,7 @@ spec:
       terminationGracePeriodSeconds: 60
       containers:
       - name:  {{ .Values.appName }}
-        image: {{ .Values.image }}:{{ .Values.appVersion }}
+        image: {{ .Values.image }}/{{ .Values.appName }}:{{ .Values.appVersion }}
         imagePullPolicy: {{.Values.imagePullPolicy}}
         {{- if or (.Values.configmap.enabled) (.Values.secrets.enabled) }}
         volumeMounts:
@@ -99,25 +99,52 @@ spec:
         readinessProbe:
           successThreshold: {{ .Values.healthcheck.readinessSuccess }}
           failureThreshold: {{ .Values.healthcheck.readinessFailure }}
+          {{- if eq ( .Values.healcheck.type ) "http" }}
           httpGet:
             path: {{ .Values.healthcheck.path }}
             port: {{ .Values.appPort }}
+          {{- end }}
+          {{- if eq ( .Values.healthcheck.type) "command"}}
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - {{ .Values.healthcheck.command }}
+          {{- end }}
           initialDelaySeconds: {{ .Values.healthcheck.readinessDelay }}
           periodSeconds: {{ .Values.healthcheck.period }}
           timeoutSeconds: {{ .Values.healthcheck.timeout }}
         livenessProbe:
           successThreshold: {{ .Values.healthcheck.livenessSuccess }}
           failureThreshold: {{ .Values.healthcheck.livenessFailure }}
+          {{- if eq ( .Values.healcheck.type ) "http" }}
           httpGet:
-            path:  {{ .Values.healthcheck.path }}
+            path: {{ .Values.healthcheck.path }}
             port: {{ .Values.appPort }}
+          {{- end }}
+          {{- if eq ( .Values.healthcheck.type) "command"}}
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - {{ .Values.healthcheck.command }}
+          {{- end }}
           initialDelaySeconds: {{ .Values.healthcheck.livenessDelay }}
           periodSeconds: {{ .Values.healthcheck.period }}
           timeoutSeconds: {{ .Values.healthcheck.timeout }}
         startupProbe:
+          {{- if eq ( .Values.healcheck.type ) "http" }}
           httpGet:
             path: {{ .Values.healthcheck.path }}
             port: {{ .Values.appPort }}
+          {{- end }}
+          {{- if eq ( .Values.healthcheck.type) "command"}}
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - {{ .Values.healthcheck.command }}
+          {{- end }}
           failureThreshold: 30
           periodSeconds: {{ .Values.healthcheck.period }}
         env:

@@ -6,7 +6,7 @@ image: 790809641511.dkr.ecr.us-east-1.amazonaws.com
 
 namespace: apps
 
-envShort: env
+envShort: live
 
 appName: app-template
 

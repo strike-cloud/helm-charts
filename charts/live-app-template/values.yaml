@@ -1,27 +1,16 @@
 ---
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
+# Simplified values.yaml for live-app-template
 image: 790809641511.dkr.ecr.us-east-1.amazonaws.com
-
 appVersion: latest
-
 namespace: apps
-
 envShort: live
-
 appName: app-template
-
 imagePullPolicy: Always
-
-secrets:
-  enabled: false
-
-service:
-  enabled: true
-  type: ClusterIP
-  port: 80
-
+# type: app | worker | cronjob
+type: app
+# Only needed for cronjob type
+cronjob:
+  schedule: "* * * * *"
 healthcheck:
   type: http
   path: /
@@ -33,17 +22,14 @@ healthcheck:
   livenessDelay: 20
   period: 10
   timeout: 5
-
 resources:
-  limits:
-    memory: 1024Mi
   requests:
     cpu: 1000m
     memory: 1024Mi
+  limits:
+    memory: 1024Mi
 appPort: 8080
-
 replicaCount: 2
-
 deployment:
   maxUnavailable: 1
   maxSurge: 0
@@ -51,7 +37,6 @@ deployment:
   specs:
     labels:
       example: thislabel
-
 hpa:
   enabled: true
   minReplicas: 2
@@ -59,7 +44,6 @@ hpa:
   cpu: 80
   memory:
   requests:
-
 ingress:
   enabled: true
   scheme: internal
@@ -68,10 +52,14 @@ ingress:
   domain: westrike.top
   group: "core"
   certificate: arn:aws:acm:us-east-1:790809641511:certificate/5a96472b-2566-49ca-8b3e-25349881f936
-
+service:
+  enabled: true
+  type: ClusterIP
+  port: 80
+secrets:
+  enabled: false
 environments:
   env: live
-
 configmap:
   enabled: false
   name: test-configmap

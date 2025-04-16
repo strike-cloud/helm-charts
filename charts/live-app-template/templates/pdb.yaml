@@ -1,4 +1,4 @@
-{{- if .Values.hpa.enabled }}
+{{- if and (or (eq .Values.type "app") (eq .Values.type "worker")) (.Values.hpa.enabled) }}
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:

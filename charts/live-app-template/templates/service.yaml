@@ -1,4 +1,4 @@
-{{- if and (or (eq .Values.type "app") (eq .Values.type "worker")) (.Values.service.enabled) }}
+{{- if and (eq .Values.type "app") (.Values.service.enabled) }}
 apiVersion: v1
 kind: Service
 metadata:

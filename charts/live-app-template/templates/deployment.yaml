@@ -48,11 +48,7 @@ spec:
       terminationGracePeriodSeconds: 60
       containers:
       - name:  {{ .Values.appName }}
-        {{- if contains .Values.appName .Values.image }}
-        image: {{ .Values.image }}:{{ .Values.appVersion }}
-        {{- else }}
-        image: {{ .Values.image }}/{{ .Values.appName }}:{{ .Values.appVersion }}
-        {{- end }}
+        image: {{ regexReplaceAll "/[^/]+$" .Values.image "" }}/{{ .Values.appName }}:{{ .Values.appVersion }}
         imagePullPolicy: {{.Values.imagePullPolicy}}
         {{- if or (.Values.configmap.enabled) (.Values.secrets.enabled) }}
         volumeMounts:

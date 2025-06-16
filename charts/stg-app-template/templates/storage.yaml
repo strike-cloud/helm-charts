@@ -1,0 +1,39 @@
+{{- if .Values.resources.volume.enabled }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .Values.appName }}-ebs-sc
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
+allowVolumeExpansion: true
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.appName }}-pv
+spec:
+  capacity:
+    storage: {{ .Values.resources.volume.size }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{ .Values.appName }}-ebs-sc
+  csi:
+    driver: ebs.csi.aws.com
+    volumeHandle: {{ .Values.resources.volume.id }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.appName }}-ebs-pvc
+spec:
+  resources:
+    requests:
+      storage: {{ .Values.resources.volume.size }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.appName }}-ebs-sc
+{{- end }}

@@ -28,6 +28,11 @@ resources:
     memory: 1024Mi
   limits:
     memory: 1024Mi
+  volume:
+    enabled: false
+    size: 10Gi
+    id: "vol-1234567890abcdef0"
+    mountPath: /mnt/data
 appPort: 8080
 replicaCount: 2
 deployment:

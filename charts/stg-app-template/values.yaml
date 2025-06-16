@@ -31,8 +31,7 @@ resources:
   volume:
     enabled: false
     size: 10Gi
-    id: "vol-1234567890abcdef0"
-    mountPath: /mnt/data
+    mountPath: /mnt/app-data
 appPort: 8080
 replicaCount: 1
 deployment:

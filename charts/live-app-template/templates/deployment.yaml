@@ -65,8 +65,8 @@ spec:
             name: {{ if .Values.secrets.appName }}{{ .Values.secrets.appName }}{{ else }}{{ .Values.appName }}{{ end }}
           {{- end }}
           {{- if .Values.resources.volume.enabled }}
-          - mountPath: {{ .Values.resources.volume.mountPath | default "/mnt/data" }}
-            name: {{ .Values.appName }}-ebs-pvc-claim
+          - mountPath: {{ .Values.resources.volume.mountPath | default "/mnt/app-data" }}
+            name: {{ .Values.appName }}-data
           {{- end }}
         {{- end }}
         resources:
@@ -153,9 +153,9 @@ spec:
             secretName: {{ if .Values.secrets.appName }}{{ .Values.secrets.appName }}{{ else }}{{ .Values.appName }}{{ end }}
         {{- end }}
         {{- if .Values.resources.volume.enabled }}
-        - name: {{ .Values.appName }}-ebs-pvc-claim
+        - name: {{ .Values.appName }}-data
           persistentVolumeClaim:
-            claimName: {{ .Values.appName }}-ebs-pvc
+            claimName: {{ .Values.appName }}-pvc
         {{- end }}
       {{- end }}
       affinity:

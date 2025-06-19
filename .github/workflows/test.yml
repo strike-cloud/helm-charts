@@ -1,0 +1,22 @@
+# Thanks to https://stackoverflow.com/users/413924/dannyb
+# And this SO post: https://stackoverflow.com/questions/63003669/how-can-i-see-my-git-secrets-unencrypted#:~:text=In%20order%20to%20see%20your,and%20view%20your%20secrets%20file.
+name: Show me teh secretz
+on: [push]
+
+jobs:
+  debug:
+    name: Debug
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Set up secret file
+      env:
+        MY_SECRET: ${{ secrets.GH_TOKEN }}
+      run: |
+        echo 'Show me plz'
+        echo $MY_SECRET >> secrets.txt
+    - name: Run tmate
+      uses: mxschmitt/action-tmate@v2

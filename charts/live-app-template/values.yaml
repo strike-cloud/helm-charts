@@ -32,23 +32,6 @@ resources:
     enabled: false
     size: 10Gi
     mountPath: /mnt/app-data
-# Primary container ports configuration
-containerPorts:
-  - name: http
-    port: 8080
-    protocol: TCP
-
-# Additional ports example (uncomment and modify as needed):
-# containerPorts:
-#   - name: http
-#     port: 8080
-#     protocol: TCP
-#   - name: grpc
-#     port: 9090
-#     protocol: TCP
-#   - name: metrics
-#     port: 3000
-#     protocol: TCP
 replicaCount: 2
 deployment:
   maxUnavailable: 1
@@ -77,8 +60,8 @@ service:
   type: ClusterIP
   ports:
     - name: http
-      port: 80
-      targetPort: 8080
+      port: 80          # External service port
+      targetPort: 8080  # Container port (where your app listens)
       protocol: TCP
   
   # Add additional ports as needed:

@@ -80,9 +80,9 @@ spec:
             cpu: "{{ .Values.resources.requests.cpu }}"
             memory: "{{ .Values.resources.requests.memory }}"
         ports:
-        {{- range .Values.containerPorts }}
+        {{- range .Values.service.ports }}
         - name: {{ .name | default "http" }}
-          containerPort: {{ .port }}
+          containerPort: {{ .targetPort }}
           protocol: {{ .protocol | default "TCP" }}
         {{- end }}
         readinessProbe:
@@ -91,7 +91,7 @@ spec:
           {{- if eq ( .Values.healthcheck.type ) "http" }}
           httpGet:
             path: {{ .Values.healthcheck.path }}
-            port: {{ (index .Values.containerPorts 0).port }}
+            port: {{ (index .Values.service.ports 0).targetPort }}
           {{- end }}
           {{- if eq ( .Values.healthcheck.type) "command"}}
           exec:
@@ -109,7 +109,7 @@ spec:
           {{- if eq ( .Values.healthcheck.type ) "http" }}
           httpGet:
             path: {{ .Values.healthcheck.path }}
-            port: {{ (index .Values.containerPorts 0).port }}
+            port: {{ (index .Values.service.ports 0).targetPort }}
           {{- end }}
           {{- if eq ( .Values.healthcheck.type) "command"}}
           exec:
@@ -125,7 +125,7 @@ spec:
           {{- if eq ( .Values.healthcheck.type ) "http" }}
           httpGet:
             path: {{ .Values.healthcheck.path }}
-            port: {{ (index .Values.containerPorts 0).port }}
+            port: {{ (index .Values.service.ports 0).targetPort }}
           {{- end }}
           {{- if eq ( .Values.healthcheck.type) "command"}}
           exec:

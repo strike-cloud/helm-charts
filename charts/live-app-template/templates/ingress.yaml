@@ -16,7 +16,7 @@ metadata:
     alb.ingress.kubernetes.io/load-balancer-attributes: deletion_protection.enabled=true
     alb.ingress.kubernetes.io/load-balancer-attributes: routing.http.preserve_host_header.enabled=true
     alb.ingress.kubernetes.io/load-balancer-attributes: routing.http.xff_header_processing.mode=preserve
-    alb.ingress.kubernetes.io/actions.{{ .Values.appName }}: '{ "Type": "forward", "ForwardConfig": { "TargetGroups": [ { "Weight": 100, "ServiceName": "{{ .Values.appName }}", "ServicePort": "{{ .Values.service.port }}" } ] } }'
+    alb.ingress.kubernetes.io/actions.{{ .Values.appName }}: '{ "Type": "forward", "ForwardConfig": { "TargetGroups": [ { "Weight": 100, "ServiceName": "{{ .Values.appName }}", "ServicePort": "{{ (index .Values.service.ports 0).port }}" } ] } }'
     alb.ingress.kubernetes.io/tags: Owner=ariel.ortmann@strike.sh,Environment={{ .Values.envShort }},Monitoring=ElasticAPM,ContainsUserData=true,UserDataStored=false,Description=InternalALBGroup,Repo=helm-apps
     external-dns.alpha.kubernetes.io/hostname: {{ .Values.appName }}.{{ .Values.envShort }}.{{ .Values.ingress.domain }}
   labels:
@@ -26,7 +26,7 @@ spec:
   #   service:
   #     name: {{ .Values.appName }}
   #     port:
-  #       number: {{ .Values.service.port }}
+  #       number: {{ (index .Values.service.ports 0).port }}
   rules:
   - host: {{ .Values.appName }}.{{ .Values.envShort }}.{{ .Values.ingress.domain }}
     http:
@@ -37,5 +37,5 @@ spec:
             service:
               name: {{ .Values.appName }}
               port:
-                number: {{ .Values.service.port }}
+                number: {{ (index .Values.service.ports 0).port }}
 {{- end }}

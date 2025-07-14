@@ -1,41 +1,41 @@
 {{- if and (eq .Values.type "app") (.Values.ingress.enabled) }}
+{{- $ingressRules := .Values.ingress.rules | default (list (dict "name" "main" "port" (index .Values.service.ports 0).name "path" "/")) }}
+{{- range $ruleIndex, $rule := $ingressRules }}
+{{- $portConfig := (index (where $.Values.service.ports "name" $rule.port) 0) | default (index $.Values.service.ports 0) }}
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Values.appName }}-group
-  namespace: {{ .Values.namespace }}
+  name: {{ $.Values.appName }}{{ if ne $rule.name "main" }}-{{ $rule.name }}{{ end }}-group
+  namespace: {{ $.Values.namespace }}
   annotations:
     kubernetes.io/ingress.class: alb
-    alb.ingress.kubernetes.io/scheme: {{ .Values.ingress.scheme}}
-    alb.ingress.kubernetes.io/target-type: {{.Values.ingress.target}}
-    alb.ingress.kubernetes.io/security-groups: {{ .Values.ingress.sg }}
-    alb.ingress.kubernetes.io/healthcheck-path: {{ .Values.healthcheck.path }}
-    alb.ingress.kubernetes.io/group.name: {{ .Values.ingress.group }}
+    alb.ingress.kubernetes.io/scheme: {{ $.Values.ingress.scheme}}
+    alb.ingress.kubernetes.io/target-type: {{ $.Values.ingress.target}}
+    alb.ingress.kubernetes.io/security-groups: {{ $.Values.ingress.sg }}
+    alb.ingress.kubernetes.io/healthcheck-path: {{ $.Values.healthcheck.path }}
+    alb.ingress.kubernetes.io/group.name: {{ $.Values.ingress.group }}
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-    alb.ingress.kubernetes.io/certificate-arn: {{ .Values.ingress.certificate }}
+    alb.ingress.kubernetes.io/certificate-arn: {{ $.Values.ingress.certificate }}
     alb.ingress.kubernetes.io/load-balancer-attributes: deletion_protection.enabled=true
     alb.ingress.kubernetes.io/load-balancer-attributes: routing.http.preserve_host_header.enabled=true
     alb.ingress.kubernetes.io/load-balancer-attributes: routing.http.xff_header_processing.mode=preserve
-    alb.ingress.kubernetes.io/actions.{{ .Values.appName }}: '{ "Type": "forward", "ForwardConfig": { "TargetGroups": [ { "Weight": 100, "ServiceName": "{{ .Values.appName }}", "ServicePort": "{{ (index .Values.service.ports 0).port }}" } ] } }'
-    alb.ingress.kubernetes.io/tags: Owner=ariel.ortmann@strike.sh,Environment={{ .Values.envShort }},Monitoring=ElasticAPM,ContainsUserData=true,UserDataStored=false,Description=InternalALBGroup,Repo=helm-apps
-    external-dns.alpha.kubernetes.io/hostname: {{ .Values.appName }}.{{ .Values.envShort }}.{{ .Values.ingress.domain }}
+    alb.ingress.kubernetes.io/actions.{{ $.Values.appName }}{{ if ne $rule.name "main" }}-{{ $rule.name }}{{ end }}: '{ "Type": "forward", "ForwardConfig": { "TargetGroups": [ { "Weight": 100, "ServiceName": "{{ $.Values.appName }}", "ServicePort": "{{ $portConfig.port }}" } ] } }'
+    alb.ingress.kubernetes.io/tags: Owner=ariel.ortmann@strike.sh,Environment={{ $.Values.envShort }},Monitoring=ElasticAPM,ContainsUserData=true,UserDataStored=false,Description=InternalALBGroup,Repo=helm-apps
+    external-dns.alpha.kubernetes.io/hostname: {{ $rule.host | default (printf "%s.%s.%s" $.Values.appName $.Values.envShort $.Values.ingress.domain) }}
   labels:
-    app: {{ .Values.appName }}
+    app: {{ $.Values.appName }}
 spec:
-  # defaultBackend:
-  #   service:
-  #     name: {{ .Values.appName }}
-  #     port:
-  #       number: {{ (index .Values.service.ports 0).port }}
   rules:
-  - host: {{ .Values.appName }}.{{ .Values.envShort }}.{{ .Values.ingress.domain }}
+  - host: {{ $rule.host | default (printf "%s.%s.%s" $.Values.appName $.Values.envShort $.Values.ingress.domain) }}
     http:
       paths:
-        - path: /
+        - path: {{ $rule.path | default "/" }}
           pathType: Prefix
           backend:
             service:
-              name: {{ .Values.appName }}
+              name: {{ $.Values.appName }}
               port:
-                number: {{ (index .Values.service.ports 0).port }}
+                number: {{ $portConfig.port }}
+{{- end }}
 {{- end }}

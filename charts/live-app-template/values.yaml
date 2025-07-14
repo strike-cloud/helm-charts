@@ -55,6 +55,20 @@ ingress:
   domain: westrike.top
   group: "core"
   certificate: arn:aws:acm:us-east-1:790809641511:certificate/5a96472b-2566-49ca-8b3e-25349881f936
+  
+  # Multiple ingress support - define multiple ingress rules for different ports
+  # If not specified, creates a single ingress for the first service port
+  rules:
+    - name: main           # Primary ingress (optional name, defaults to appName)
+      port: http           # Port name from service.ports to route to
+      path: /              # Path for this ingress rule
+      # host: custom.domain.com  # Optional: override default hostname
+    
+    # Example: Additional ingress for second port
+    # - name: api
+    #   port: grpc
+    #   path: /api
+    #   host: api.app-name.live.westrike.top
 service:
   enabled: true
   type: ClusterIP

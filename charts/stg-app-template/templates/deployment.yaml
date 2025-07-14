@@ -32,10 +32,6 @@ spec:
         app:  {{ .Values.appName }}
         env: {{ .Values.envShort }}
         version: {{ .Values.appVersion | quote  }}
-        admission.datadoghq.com/enabled: "true"
-        tags.datadoghq.com/env: {{ .Values.envShort }}
-        tags.datadoghq.com/service: {{ .Values.appName }}
-        tags.datadoghq.com/version: {{ .Values.appVersion | quote  }}
         # timestamp: "{{ date "20060102150405" now }}"
       annotations:
         # timestamp: "{{ date "20060102150405" now }}"
@@ -84,14 +80,18 @@ spec:
             cpu: "{{ .Values.resources.requests.cpu }}"
             memory: "{{ .Values.resources.requests.memory }}"
         ports:
-        - containerPort: {{ .Values.appPort }}
+        {{- range .Values.containerPorts }}
+        - name: {{ .name | default "http" }}
+          containerPort: {{ .port }}
+          protocol: {{ .protocol | default "TCP" }}
+        {{- end }}
         readinessProbe:
           successThreshold: {{ .Values.healthcheck.readinessSuccess }}
           failureThreshold: {{ .Values.healthcheck.readinessFailure }}
           {{- if eq ( .Values.healthcheck.type ) "http" }}
           httpGet:
             path: {{ .Values.healthcheck.path }}
-            port: {{ .Values.appPort }}
+            port: {{ (index .Values.containerPorts 0).port }}
           {{- end }}
           {{- if eq ( .Values.healthcheck.type) "command"}}
           exec:
@@ -109,7 +109,7 @@ spec:
           {{- if eq ( .Values.healthcheck.type ) "http" }}
           httpGet:
             path: {{ .Values.healthcheck.path }}
-            port: {{ .Values.appPort }}
+            port: {{ (index .Values.containerPorts 0).port }}
           {{- end }}
           {{- if eq ( .Values.healthcheck.type) "command"}}
           exec:
@@ -125,7 +125,7 @@ spec:
           {{- if eq ( .Values.healthcheck.type ) "http" }}
           httpGet:
             path: {{ .Values.healthcheck.path }}
-            port: {{ .Values.appPort }}
+            port: {{ (index .Values.containerPorts 0).port }}
           {{- end }}
           {{- if eq ( .Values.healthcheck.type) "command"}}
           exec:

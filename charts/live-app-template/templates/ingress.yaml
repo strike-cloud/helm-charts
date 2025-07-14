@@ -17,7 +17,7 @@ metadata:
     alb.ingress.kubernetes.io/load-balancer-attributes: routing.http.preserve_host_header.enabled=true
     alb.ingress.kubernetes.io/load-balancer-attributes: routing.http.xff_header_processing.mode=preserve
     alb.ingress.kubernetes.io/actions.{{ .Values.appName }}: '{ "Type": "forward", "ForwardConfig": { "TargetGroups": [ { "Weight": 100, "ServiceName": "{{ .Values.appName }}", "ServicePort": "{{ .Values.service.port }}" } ] } }'
-    alb.ingress.kubernetes.io/tags: Owner=santiago.hernandez@strike.sh,Environment={{ .Values.envShort }},Monitoring=Datadog,ContainsUserData=true,UserDataStored=false,Description=InternalALBGroup,Repo=helm-apps
+    alb.ingress.kubernetes.io/tags: Owner=ariel.ortmann@strike.sh,Environment={{ .Values.envShort }},Monitoring=ElasticAPM,ContainsUserData=true,UserDataStored=false,Description=InternalALBGroup,Repo=helm-apps
     external-dns.alpha.kubernetes.io/hostname: {{ .Values.appName }}.{{ .Values.envShort }}.{{ .Values.ingress.domain }}
   labels:
     app: {{ .Values.appName }}

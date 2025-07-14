@@ -13,7 +13,10 @@ spec:
   selector:
     app: {{ .Values.appName }}
   ports:
-    - protocol: TCP
-      port: {{ .Values.service.port }}
-      targetPort: {{ .Values.appPort }}
+    {{- range .Values.service.ports }}
+    - name: {{ .name | default "http" }}
+      protocol: {{ .protocol | default "TCP" }}
+      port: {{ .port }}
+      targetPort: {{ .targetPort }}
+    {{- end }}
 {{- end }}

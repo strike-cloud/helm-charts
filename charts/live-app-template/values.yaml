@@ -32,7 +32,23 @@ resources:
     enabled: false
     size: 10Gi
     mountPath: /mnt/app-data
-appPort: 8080
+# Primary container ports configuration
+containerPorts:
+  - name: http
+    port: 8080
+    protocol: TCP
+
+# Additional ports example (uncomment and modify as needed):
+# containerPorts:
+#   - name: http
+#     port: 8080
+#     protocol: TCP
+#   - name: grpc
+#     port: 9090
+#     protocol: TCP
+#   - name: metrics
+#     port: 3000
+#     protocol: TCP
 replicaCount: 2
 deployment:
   maxUnavailable: 1
@@ -59,7 +75,26 @@ ingress:
 service:
   enabled: true
   type: ClusterIP
-  port: 80
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP
+  
+  # Add additional ports as needed:
+  # ports:
+  #   - name: http
+  #     port: 80
+  #     targetPort: 8080
+  #     protocol: TCP
+  #   - name: grpc
+  #     port: 90
+  #     targetPort: 9090
+  #     protocol: TCP
+  #   - name: metrics
+  #     port: 3000
+  #     targetPort: 3000
+  #     protocol: TCP
 secrets:
   enabled: false
 environments:

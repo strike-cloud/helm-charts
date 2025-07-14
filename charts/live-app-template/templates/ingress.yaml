@@ -1,7 +1,12 @@
 {{- if and (eq .Values.type "app") (.Values.ingress.enabled) }}
 {{- $ingressRules := .Values.ingress.rules | default (list (dict "name" "main" "port" (index .Values.service.ports 0).name "path" "/")) }}
 {{- range $ruleIndex, $rule := $ingressRules }}
-{{- $portConfig := (index (where $.Values.service.ports "name" $rule.port) 0) | default (index $.Values.service.ports 0) }}
+{{- $portConfig := index $.Values.service.ports 0 }}
+{{- range $.Values.service.ports }}
+  {{- if eq .name $rule.port }}
+    {{- $portConfig = . }}
+  {{- end }}
+{{- end }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress

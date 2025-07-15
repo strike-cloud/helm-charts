@@ -27,12 +27,24 @@ metadata:
     alb.ingress.kubernetes.io/load-balancer-attributes: routing.http.xff_header_processing.mode=preserve
     alb.ingress.kubernetes.io/actions.{{ $.Values.appName }}{{ if ne $rule.name "main" }}-{{ $rule.name }}{{ end }}: '{ "Type": "forward", "ForwardConfig": { "TargetGroups": [ { "Weight": 100, "ServiceName": "{{ $.Values.appName }}", "ServicePort": "{{ $portConfig.port }}" } ] } }'
     alb.ingress.kubernetes.io/tags: Owner=santiago.hernandez@strike.sh,Environment={{ $.Values.envShort }},Monitoring=Datadog,ContainsUserData=true,UserDataStored=false,Description=InternalALBGroup,Repo=helm-apps
-    external-dns.alpha.kubernetes.io/hostname: {{ $rule.host | default (if ne $.Values.ingress.domain "preview.strike.sh" (printf "%s.%s.%s" $.Values.appName $.Values.envShort $.Values.ingress.domain) (printf "%s.%s" $.Values.appName $.Values.ingress.domain)) }}
+    {{- if $rule.host }}
+    external-dns.alpha.kubernetes.io/hostname: {{ $rule.host }}
+    {{- else if ne $.Values.ingress.domain "preview.strike.sh" }}
+    external-dns.alpha.kubernetes.io/hostname: {{ $.Values.appName }}.{{ $.Values.envShort }}.{{ $.Values.ingress.domain }}
+    {{- else }}
+    external-dns.alpha.kubernetes.io/hostname: {{ $.Values.appName }}.{{ $.Values.ingress.domain }}
+    {{- end }}
   labels:
     app: {{ $.Values.appName }}
 spec:
   rules:
-  - host: {{ $rule.host | default (if ne $.Values.ingress.domain "preview.strike.sh" (printf "%s.%s.%s" $.Values.appName $.Values.envShort $.Values.ingress.domain) (printf "%s.%s" $.Values.appName $.Values.ingress.domain)) }}
+  {{- if $rule.host }}
+  - host: {{ $rule.host }}
+  {{- else if ne $.Values.ingress.domain "preview.strike.sh" }}
+  - host: {{ $.Values.appName }}.{{ $.Values.envShort }}.{{ $.Values.ingress.domain }}
+  {{- else }}
+  - host: {{ $.Values.appName }}.{{ $.Values.ingress.domain }}
+  {{- end }}
     http:
       paths:
         - path: {{ $rule.path | default "/" }}

@@ -3,7 +3,7 @@
 image: 287981551800.dkr.ecr.us-east-1.amazonaws.com
 appVersion: latest
 namespace: apps
-envShort: live
+envShort: asm
 appName: app-template
 imagePullPolicy: Always
 # type: app | worker | cronjob
@@ -54,7 +54,7 @@ ingress:
   sg: "sg_internal"
   domain: westrike.top
   group: "core"
-  certificate: arn:aws:acm:us-east-1:790809641511:certificate/5a96472b-2566-49ca-8b3e-25349881f936
+  certificate: arn:aws:acm:us-east-1:287981551800:certificate/7b97d133-a5e6-4d9f-bef7-f77f8aab38f9
 service:
   enabled: true
   type: ClusterIP

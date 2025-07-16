@@ -1,0 +1,22 @@
+{{- if and (eq .Values.type "app") (.Values.service.enabled) }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: {{ .Values.appName }}
+    env: {{ .Values.envShort }}
+    version: {{ .Values.appVersion | quote  }}
+  name: {{ .Values.appName }}
+  namespace: {{ .Values.namespace }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app: {{ .Values.appName }}
+  ports:
+    {{- range .Values.service.ports }}
+    - name: {{ .name | default "http" }}
+      protocol: {{ .protocol | default "TCP" }}
+      port: {{ .port }}
+      targetPort: {{ .targetPort }}
+    {{- end }}
+{{- end }}

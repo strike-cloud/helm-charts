@@ -1,0 +1,175 @@
+{{- if or (eq .Values.type "app") (eq .Values.type "worker") }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.appName }}
+    env: {{ .Values.envShort }}
+  annotations:
+    link.argocd.argoproj.io/repository: 'Repository|https://github.com/strikesecurity/{{ .Release.Name }}'
+    link.argocd.argoproj.io/repository-actions: 'Repository|https://github.com/strikesecurity/{{ .Release.Name }}.git/actions'
+
+spec:
+  progressDeadlineSeconds: 300
+  revisionHistoryLimit: 3
+{{- if not .Values.hpa.enabled }}
+  replicas: {{ .Values.hpa.minReplicas }}
+{{- end }}
+  selector:
+    matchLabels:
+      app:  {{ .Values.appName }}
+  strategy:
+    type: {{ .Values.deployment.strategy }}
+    rollingUpdate:
+      maxUnavailable: {{ .Values.deployment.maxUnavailable }}
+      maxSurge: {{ .Values.deployment.maxSurge }}
+  template:
+    metadata:
+      labels:
+        app:  {{ .Values.appName }}
+        env: {{ .Values.envShort }}
+        version: {{ .Values.appVersion | quote  }}
+        # timestamp: "{{ date "20060102150405" now }}"
+      annotations:
+        # timestamp: "{{ date "20060102150405" now }}"
+        elastic.co/dataset: kubernetes.container_logs.apps
+        elastic.co/namespace: apps
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: {{ .Values.appName }}
+              # timestamp: {{ date "20060102150405" now | quote }}
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name:  {{ .Values.appName }}
+        {{- if contains "/" .Values.image }}
+        image: {{ .Values.image }}:{{ .Values.appVersion }}
+        {{- else }}
+        image: {{ .Values.image }}/{{ .Values.appName }}:{{ .Values.appVersion }}
+        {{- end }}
+        imagePullPolicy: {{.Values.imagePullPolicy}}
+        {{- if or (.Values.configmap.enabled) (.Values.secrets.enabled) }}
+        volumeMounts:
+          {{- if .Values.configmap.enabled }}
+          - mountPath: /etc/configmap
+            name: cm-volume
+          {{- end }}
+          {{- if .Values.secrets.enabled }}
+          - mountPath: /etc/secrets
+            name: {{ if .Values.secrets.appName }}{{ .Values.secrets.appName }}{{ else }}{{ .Values.appName }}{{ end }}
+          {{- end }}
+          {{- if .Values.resources.volume.enabled }}
+          - mountPath: {{ .Values.resources.volume.mountPath | default "/mnt/app-data" }}
+            name: {{ .Values.appName }}-data
+          {{- end }}
+        {{- end }}
+        resources:
+          limits:
+            {{- if .Values.resources.limits.cpu}}
+            cpu: "{{ .Values.resources.limits.cpu }}"
+            {{- end }}
+            memory: "{{ .Values.resources.limits.memory }}"
+          requests:
+            cpu: "{{ .Values.resources.requests.cpu }}"
+            memory: "{{ .Values.resources.requests.memory }}"
+        ports:
+        {{- range .Values.service.ports }}
+        - name: {{ .name | default "http" }}
+          containerPort: {{ .targetPort }}
+          protocol: {{ .protocol | default "TCP" }}
+        {{- end }}
+        readinessProbe:
+          successThreshold: {{ .Values.healthcheck.readinessSuccess }}
+          failureThreshold: {{ .Values.healthcheck.readinessFailure }}
+          {{- if eq ( .Values.healthcheck.type ) "http" }}
+          httpGet:
+            path: {{ .Values.healthcheck.path }}
+            port: {{ (index .Values.service.ports 0).targetPort }}
+          {{- end }}
+          {{- if eq ( .Values.healthcheck.type) "command"}}
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - {{ .Values.healthcheck.command }}
+          {{- end }}
+          initialDelaySeconds: {{ .Values.healthcheck.readinessDelay }}
+          periodSeconds: {{ .Values.healthcheck.period }}
+          timeoutSeconds: {{ .Values.healthcheck.timeout }}
+        livenessProbe:
+          successThreshold: {{ .Values.healthcheck.livenessSuccess }}
+          failureThreshold: {{ .Values.healthcheck.livenessFailure }}
+          {{- if eq ( .Values.healthcheck.type ) "http" }}
+          httpGet:
+            path: {{ .Values.healthcheck.path }}
+            port: {{ (index .Values.service.ports 0).targetPort }}
+          {{- end }}
+          {{- if eq ( .Values.healthcheck.type) "command"}}
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - {{ .Values.healthcheck.command }}
+          {{- end }}
+          initialDelaySeconds: {{ .Values.healthcheck.livenessDelay }}
+          periodSeconds: {{ .Values.healthcheck.period }}
+          timeoutSeconds: {{ .Values.healthcheck.timeout }}
+        startupProbe:
+          {{- if eq ( .Values.healthcheck.type ) "http" }}
+          httpGet:
+            path: {{ .Values.healthcheck.path }}
+            port: {{ (index .Values.service.ports 0).targetPort }}
+          {{- end }}
+          {{- if eq ( .Values.healthcheck.type) "command"}}
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - {{ .Values.healthcheck.command }}
+          {{- end }}
+          failureThreshold: 30
+          periodSeconds: {{ .Values.healthcheck.period }}
+        lifecycle:
+          preStop:
+            exec:
+              command: ["sleep", "60"]
+        env:
+        {{- range $key, $value := .Values.environments }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+      {{- if or (.Values.configmap.enabled) (.Values.secrets.enabled) }}
+      volumes:
+        {{- if .Values.configmap.enabled }}
+        - name: cm-volume
+          configMap:
+            name: {{ .Values.configmap.name }}
+        {{- end }}
+        {{- if .Values.secrets.enabled }}
+        - name: {{ if .Values.secrets.appName }}{{ .Values.secrets.appName }}{{ else }}{{ .Values.appName }}{{ end }}
+          secret:
+            secretName: {{ if .Values.secrets.appName }}{{ .Values.secrets.appName }}{{ else }}{{ .Values.appName }}{{ end }}
+        {{- end }}
+        {{- if .Values.resources.volume.enabled }}
+        - name: {{ .Values.appName }}-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.appName }}-pvc
+        {{- end }}
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                      - "{{ .Values.appName }}"
+              topologyKey: "kubernetes.io/hostname"
+{{- end }}

@@ -3,3 +3,6 @@ live-app-template:
 
 stg-app-template:
   - charts/stg-app-template/**/*
+
+asm-app-template:
+  - charts/asm-app-template/**/*

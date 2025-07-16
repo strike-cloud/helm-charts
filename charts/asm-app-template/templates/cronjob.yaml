@@ -1,0 +1,60 @@
+{{- if eq .Values.type "cronjob" }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Values.appName }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.appName }}
+    env: {{ .Values.envShort }}
+spec:
+  schedule: "{{ .Values.cronjob.schedule }}"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: {{ .Values.appName }}
+              {{- if contains "/" .Values.image }}
+              image: {{ .Values.image }}:{{ .Values.appVersion }}
+              {{- else }}
+              image: {{ .Values.image }}/{{ .Values.appName }}:{{ .Values.appVersion }}
+              {{- end }}
+              imagePullPolicy: {{ .Values.imagePullPolicy }}
+              {{- if or (.Values.configmap.enabled) (.Values.secrets.enabled) }}
+              volumeMounts:
+                {{- if .Values.configmap.enabled}}
+                - mountPath: /etc/configmap
+                  name: cm-volume
+                {{- end }}
+                {{- if .Values.secrets.enabled}}
+                - mountPath: /etc/secrets
+                  name: {{ if .Values.secrets.appName }}{{ .Values.secrets.appName }}{{ else }}{{ .Values.appName }}{{ end }}
+                {{- end }}
+              {{- end }}
+              resources:
+                requests:
+                  cpu: {{ .Values.resources.requests.cpu }}
+                  memory: {{ .Values.resources.requests.memory }}
+                limits:
+                  memory: {{ .Values.resources.limits.memory }}
+              env:
+              {{- range $key, $value := .Values.environments }}
+                - name: {{ $key }}
+                  value: {{ $value | quote }}
+              {{- end }}
+          {{- if or (.Values.configmap.enabled) (.Values.secrets.enabled) }}
+          volumes:
+            {{- if .Values.configmap.enabled}}
+            - name: cm-volume
+              configMap:
+                name: {{ .Values.configmap.name }}
+            {{- end }}
+            {{- if .Values.secrets.enabled}}
+            - name: {{ if .Values.secrets.appName }}{{ .Values.secrets.appName }}{{ else }}{{ .Values.appName }}{{ end }}
+              secret:
+                secretName: {{ if .Values.secrets.appName }}{{ .Values.secrets.appName }}{{ else }}{{ .Values.appName }}{{ end }}
+            {{- end }}
+          {{- end }}
+          restartPolicy: OnFailure
+{{- end }}

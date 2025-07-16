@@ -1,0 +1,56 @@
+{{- if and (or (eq .Values.type "app") (eq .Values.type "worker")) (.Values.hpa.enabled) }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.appName }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.appName }}
+  {{- if eq ( int .Values.hpa.minReplicas ) 1 }}
+  minReplicas: {{ .Values.hpa.minReplicas }}
+  {{else }}
+  minReplicas: {{ .Values.hpa.minReplicas }}
+  {{- end }}
+  {{- if or (gt ( int .Values.hpa.minReplicas ) ( int .Values.hpa.maxReplicas )) (eq ( int .Values.hpa.minReplicas ) ( int .Values.hpa.maxReplicas )) }}
+  maxReplicas: {{ add .Values.hpa.minReplicas .Values.hpa.minReplicas}}
+  {{else }}
+  maxReplicas: {{ .Values.hpa.maxReplicas }}
+  {{- end }}
+  metrics:
+  {{- if .Values.hpa.cpu }}
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.hpa.cpu }}
+  {{- end }}
+  {{- if .Values.hpa.memory }}
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.hpa.memory }}
+  {{- end }}
+  {{- if .Values.hpa.requests }}
+  - type: Pod
+      pods:
+        metric: 
+          name: http_requests
+      target:
+        type: AverageValue
+        averageValue: {{ .Values.hpa.requests }}
+  {{- end }}
+  {{- if eq ( int .Values.hpa.minReplicas ) ( int .Values.hpa.maxReplicas ) }}
+  behavior:
+    scaleDown:
+      selectPolicy: Disabled
+    scaleUp:
+      selectPolicy: Disabled
+  {{- end }}
+{{- end }}

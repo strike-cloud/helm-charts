@@ -3,6 +3,16 @@ entries:
   asm-app-template:
   - apiVersion: v1
     appVersion: 2.0.0
+    created: "2025-07-16T20:37:54.927083371Z"
+    description: A Helm chart for Kubernetes
+    digest: 7f74d54af9733673c63707aeed5ac358c2b86dc10d61808585d6031944eae3ff
+    name: asm-app-template
+    type: application
+    urls:
+    - https://github.com/strike-cloud/helm-charts/releases/download/asm-app-template-1.0.46/asm-app-template-1.0.46.tgz
+    version: 1.0.46
+  - apiVersion: v1
+    appVersion: 2.0.0
     created: "2025-07-16T19:46:11.571873552Z"
     description: A Helm chart for Kubernetes
     digest: a3b7fd7bbb740c699d7061c777563069f8417fab35583f86e1ce2aa31469ac11
@@ -863,4 +873,4 @@ entries:
     urls:
     - https://github.com/strike-cloud/helm-charts/releases/download/stg-app-template-1.0.0/stg-app-template-1.0.0.tgz
     version: 1.0.0
-generated: "2025-07-16T19:46:11.572094539Z"
+generated: "2025-07-16T20:37:54.927328282Z"

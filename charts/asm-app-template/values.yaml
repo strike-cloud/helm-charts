@@ -43,7 +43,7 @@ deployment:
 hpa:
   enabled: true
   minReplicas: 2
-  maxReplicas: 10
+  maxReplicas: 2
   cpu: 80
   memory:
   requests:

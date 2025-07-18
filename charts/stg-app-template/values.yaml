@@ -42,8 +42,8 @@ deployment:
       example: thislabel
 hpa:
   enabled: true
-  minReplicas: 2
-  maxReplicas: 10
+  minReplicas: 1
+  maxReplicas: 1
   cpu: 80
   memory:
   requests:

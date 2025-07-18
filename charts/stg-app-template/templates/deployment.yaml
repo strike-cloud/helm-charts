@@ -163,4 +163,16 @@ spec:
             claimName: {{ .Values.appName }}-pvc
         {{- end }}
       {{- end }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: "app"
+                      operator: In
+                      values:
+                        - "{{ .Values.appName }}"
+                topologyKey: "kubernetes.io/hostname"
 {{- end }}

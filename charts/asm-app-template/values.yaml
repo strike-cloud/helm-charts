@@ -35,7 +35,7 @@ resources:
 replicaCount: 2
 deployment:
   maxUnavailable: 1
-  maxSurge: 0
+  maxSurge: 1
   strategy: RollingUpdate
   specs:
     labels:

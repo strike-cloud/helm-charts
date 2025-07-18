@@ -16,7 +16,7 @@ spec:
   progressDeadlineSeconds: 300
   revisionHistoryLimit: 3
 {{- if not .Values.hpa.enabled }}
-  replicas: {{ .Values.hpa.minReplicas }}
+  replicas: {{ .Values.replicaCount | default 1 }}
 {{- end }}
   selector:
     matchLabels:

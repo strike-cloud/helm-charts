@@ -136,6 +136,10 @@ spec:
           {{- end }}
           failureThreshold: 30
           periodSeconds: {{ .Values.healthcheck.period }}
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "kill -TERM 1 && while kill -0 1 2>/dev/null; do sleep 1; done"]
         env:
         {{- range $key, $value := .Values.environments }}
         - name: {{ $key }}

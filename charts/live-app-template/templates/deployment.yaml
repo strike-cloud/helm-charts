@@ -24,7 +24,7 @@ spec:
     type: {{ .Values.deployment.strategy }}
     rollingUpdate:
       maxUnavailable: {{ if eq (int .Values.replicaCount) 1 }}0{{ else }}1{{ end }}
-      amaxSurge: {{ if eq (int .Values.replicaCount) 1 }}1{{ else }}0{{ end }}
+      maxSurge: {{ if eq (int .Values.replicaCount) 1 }}1{{ else }}0{{ end }}
   template:
     metadata:
       labels:
@@ -161,17 +161,4 @@ spec:
           persistentVolumeClaim:
             claimName: {{ .Values.appName }}-pvc
         {{- end }}
-      {{- end }}
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: "app"
-                      operator: In
-                      values:
-                        - "{{ .Values.appName }}"
-                topologyKey: "kubernetes.io/hostname"
-{{- end }}
+      {{- end }}{{- end }}

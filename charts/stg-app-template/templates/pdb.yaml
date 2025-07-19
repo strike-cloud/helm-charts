@@ -5,7 +5,7 @@ metadata:
   name: {{ .Values.appName }}-pdb
   namespace: {{ .Values.namespace }}
 spec:
-  maxUnavailable: 0
+  maxUnavailable: {{ if eq .Values.replicaCount 1 }}0{{ else }}1{{ end }}
   selector:
     matchLabels:
       app: {{ .Values.appName }}

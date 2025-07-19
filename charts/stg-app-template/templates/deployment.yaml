@@ -24,8 +24,8 @@ spec:
   strategy:
     type: {{ .Values.deployment.strategy }}
     rollingUpdate:
-      maxUnavailable: {{ .Values.deployment.maxUnavailable }}
-      maxSurge: {{ .Values.deployment.maxSurge }}
+      maxUnavailable: {{ if eq .Values.replicaCount 1 }}0{{ else }}1{{ end }}
+      amaxSurge: {{ if eq .Values.replicaCount 1 }}1{{ else }}0{{ end }}
   template:
     metadata:
       labels:
@@ -40,7 +40,7 @@ spec:
     spec:
       topologySpreadConstraints:
         - maxSkew: 1
-          topologyKey: topology.kubernetes.io/zone
+          topologyKey: "kubernetes.io/hostname"
           whenUnsatisfiable: ScheduleAnyway
           labelSelector:
             matchLabels:

@@ -34,8 +34,6 @@ resources:
     mountPath: /mnt/app-data
 replicaCount: 2
 deployment:
-  maxUnavailable: 1
-  maxSurge: 1
   strategy: RollingUpdate
   specs:
     labels:

@@ -23,8 +23,8 @@ spec:
   strategy:
     type: {{ .Values.deployment.strategy }}
     rollingUpdate:
-      maxUnavailable: {{ if eq .Values.replicaCount 1 }}0{{ else }}1{{ end }}
-      amaxSurge: {{ if eq .Values.replicaCount 1 }}1{{ else }}0{{ end }}
+      maxUnavailable: {{ if eq (int .Values.replicaCount) 1 }}0{{ else }}1{{ end }}
+      amaxSurge: {{ if eq (int .Values.replicaCount) 1 }}1{{ else }}0{{ end }}
   template:
     metadata:
       labels:

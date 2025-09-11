@@ -83,3 +83,15 @@ environments:
 configmap:
   enabled: false
   name: test-configmap
+# No-interrupt protection during critical operations
+noInterrupt:
+  enabled: false
+  sidecar:
+    image: 317814227242.dkr.ecr.us-east-2.amazonaws.com/no-interrupt:latest
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 50m
+        memory: 64Mi

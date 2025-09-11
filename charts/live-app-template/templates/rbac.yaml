@@ -1,0 +1,53 @@
+{{- if .Values.noInterrupt.enabled }}
+{{- $rbacExists := lookup "v1" "ServiceAccount" .Values.namespace "no-interrupt-sa" }}
+{{- if not $rbacExists }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: no-interrupt-sa
+  namespace: {{ .Values.namespace }}
+  labels:
+    component: no-interrupt
+    env: {{ .Values.envShort }}
+  annotations:
+    # Universal ServiceAccount for no-interrupt protection
+    helm.sh/resource-policy: keep
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: no-interrupt
+  namespace: {{ .Values.namespace }}
+  labels:
+    component: no-interrupt
+    env: {{ .Values.envShort }}
+  annotations:
+    # Universal Role for no-interrupt protection
+    helm.sh/resource-policy: keep
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: no-interrupt
+  namespace: {{ .Values.namespace }}
+  labels:
+    component: no-interrupt
+    env: {{ .Values.envShort }}
+  annotations:
+    # Universal RoleBinding for no-interrupt protection
+    helm.sh/resource-policy: keep
+subjects:
+- kind: ServiceAccount
+  name: no-interrupt-sa
+  namespace: {{ .Values.namespace }}
+roleRef:
+  kind: Role
+  name: no-interrupt
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
+{{- end }}

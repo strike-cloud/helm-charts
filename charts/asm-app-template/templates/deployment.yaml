@@ -46,6 +46,9 @@ spec:
               app: {{ .Values.appName }}
               # timestamp: {{ date "20060102150405" now | quote }}
       terminationGracePeriodSeconds: 60
+      {{- if .Values.noInterrupt.enabled }}
+      serviceAccountName: no-interrupt-sa
+      {{- end }}
       containers:
       - name:  {{ .Values.appName }}
         {{- if contains "/" .Values.image }}
@@ -54,7 +57,7 @@ spec:
         image: {{ .Values.image }}/{{ .Values.appName }}:{{ .Values.appVersion }}
         {{- end }}
         imagePullPolicy: {{.Values.imagePullPolicy}}
-        {{- if or (.Values.configmap.enabled) (.Values.secrets.enabled) }}
+        {{- if or (.Values.configmap.enabled) (.Values.secrets.enabled) (.Values.noInterrupt.enabled) }}
         volumeMounts:
           {{- if .Values.configmap.enabled }}
           - mountPath: /etc/configmap
@@ -67,6 +70,10 @@ spec:
           {{- if .Values.resources.volume.enabled }}
           - mountPath: {{ .Values.resources.volume.mountPath | default "/mnt/app-data" }}
             name: {{ .Values.appName }}-data
+          {{- end }}
+          {{- if .Values.noInterrupt.enabled }}
+          - mountPath: /tmp
+            name: tmp-shared
           {{- end }}
         {{- end }}
         resources:
@@ -144,7 +151,37 @@ spec:
         - name: {{ $key }}
           value: {{ $value | quote }}
         {{- end }}
-      {{- if or (.Values.configmap.enabled) (.Values.secrets.enabled) }}
+      {{- if .Values.noInterrupt.enabled }}
+      # No-interrupt protection sidecar
+      - name: no-interrupt
+        image: {{ .Values.noInterrupt.sidecar.image }}
+        imagePullPolicy: Always
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        resources:
+          requests:
+            cpu: {{ .Values.noInterrupt.sidecar.resources.requests.cpu }}
+            memory: {{ .Values.noInterrupt.sidecar.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.noInterrupt.sidecar.resources.limits.cpu }}
+            memory: {{ .Values.noInterrupt.sidecar.resources.limits.memory }}
+        volumeMounts:
+        - mountPath: /tmp
+          name: tmp-shared
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+      {{- end }}
+      {{- if or (.Values.configmap.enabled) (.Values.secrets.enabled) (.Values.noInterrupt.enabled) }}
       volumes:
         {{- if .Values.configmap.enabled }}
         - name: cm-volume
@@ -160,5 +197,9 @@ spec:
         - name: {{ .Values.appName }}-data
           persistentVolumeClaim:
             claimName: {{ .Values.appName }}-pvc
+        {{- end }}
+        {{- if .Values.noInterrupt.enabled }}
+        - name: tmp-shared
+          emptyDir: {}
         {{- end }}
       {{- end }}{{- end }}

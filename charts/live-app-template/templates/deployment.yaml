@@ -57,7 +57,7 @@ spec:
         image: {{ .Values.image }}/{{ .Values.appName }}:{{ .Values.appVersion }}
         {{- end }}
         imagePullPolicy: {{.Values.imagePullPolicy}}
-        {{- if or (.Values.configmap.enabled) (.Values.secrets.enabled) }}
+        {{- if or (.Values.configmap.enabled) (.Values.secrets.enabled) (.Values.noInterrupt.enabled) }}
         volumeMounts:
           {{- if .Values.configmap.enabled }}
           - mountPath: /etc/configmap
@@ -70,6 +70,10 @@ spec:
           {{- if .Values.resources.volume.enabled }}
           - mountPath: {{ .Values.resources.volume.mountPath | default "/mnt/app-data" }}
             name: {{ .Values.appName }}-data
+          {{- end }}
+          {{- if .Values.noInterrupt.enabled }}
+          - mountPath: /tmp
+            name: tmp-shared
           {{- end }}
         {{- end }}
         resources:

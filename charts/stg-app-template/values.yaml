@@ -87,7 +87,7 @@ configmap:
 noInterrupt:
   enabled: false
   sidecar:
-    image: 317814227242.dkr.ecr.us-east-2.amazonaws.com/no-interrupt:latest
+    image: 317814227242.dkr.ecr.us-east-2.amazonaws.com/no-interrupt-sidecar:latest
     resources:
       requests:
         cpu: 10m

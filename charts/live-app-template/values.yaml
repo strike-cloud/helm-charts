@@ -53,6 +53,11 @@ ingress:
   domain: westrike.top
   group: "core"
   certificate: arn:aws:acm:us-east-1:790809641511:certificate/5a96472b-2566-49ca-8b3e-25349881f936
+  # extraHosts: Additional hosts to expose with the same configuration
+  # Example:
+  # extraHosts:
+  #   - live-app.strike.sh
+  #   - another-host.example.com
 service:
   enabled: true
   type: ClusterIP

@@ -56,4 +56,29 @@ spec:
         {{- end }}
         {{- end }}
         {{- end }}
+  {{- range .Values.ingress.extraHosts }}
+  - host: {{ . }}
+    http:
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ $.Values.appName }}
+              port:
+                number: {{ (index $.Values.service.ports 0).port }}
+        {{- if gt (len $.Values.service.ports) 1 }}
+        {{- range $index, $port := $.Values.service.ports }}
+        {{- if ne $index 0 }}
+        - path: /{{ $port.name }}
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ $.Values.appName }}
+              port:
+                number: {{ $port.port }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+  {{- end }}
 {{- end }}

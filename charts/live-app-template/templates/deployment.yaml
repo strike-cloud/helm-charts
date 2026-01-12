@@ -57,6 +57,14 @@ spec:
         image: {{ .Values.image }}/{{ .Values.appName }}:{{ .Values.appVersion }}
         {{- end }}
         imagePullPolicy: {{.Values.imagePullPolicy}}
+        {{- if .Values.securityContext.capabilities.add }}
+        securityContext:
+          capabilities:
+            add:
+            {{- range .Values.securityContext.capabilities.add }}
+            - {{ . }}
+            {{- end }}
+        {{- end }}
         {{- if or (.Values.configmap.enabled) (.Values.secrets.enabled) (.Values.noInterrupt.enabled) }}
         volumeMounts:
           {{- if .Values.configmap.enabled }}

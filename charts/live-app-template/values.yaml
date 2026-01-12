@@ -88,6 +88,14 @@ environments:
 configmap:
   enabled: false
   name: test-configmap
+# Container security context
+securityContext:
+  capabilities:
+    add: []
+    # Example:
+    # add:
+    #   - NET_ADMIN
+    #   - SYS_TIME
 # No-interrupt protection during critical operations
 noInterrupt:
   enabled: false

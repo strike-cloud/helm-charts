@@ -205,7 +205,7 @@ spec:
         {{- if .Values.resources.volume.enabled }}
         - name: {{ .Values.appName }}-data
           persistentVolumeClaim:
-            claimName: {{ .Values.appName }}-pvc
+            claimName: {{ .Values.appName }}-pvc{{- if .Values.resources.volume.storageClass }}-{{ .Values.resources.volume.storageClass }}{{- end }}
         {{- end }}
         {{- if .Values.noInterrupt.enabled }}
         - name: tmp-shared

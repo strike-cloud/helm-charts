@@ -13,9 +13,7 @@ metadata:
     alb.ingress.kubernetes.io/group.name: {{ .Values.ingress.group }}
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/certificate-arn: {{ .Values.ingress.certificate }}
-    alb.ingress.kubernetes.io/load-balancer-attributes: deletion_protection.enabled=true
-    alb.ingress.kubernetes.io/load-balancer-attributes: routing.http.preserve_host_header.enabled=true
-    alb.ingress.kubernetes.io/load-balancer-attributes: routing.http.xff_header_processing.mode=preserve
+    alb.ingress.kubernetes.io/load-balancer-attributes: deletion_protection.enabled=true,routing.http.preserve_host_header.enabled=true,routing.http.xff_header_processing.mode=preserve,idle_timeout.timeout_seconds=300
     alb.ingress.kubernetes.io/actions.{{ .Values.appName }}: '{ "Type": "forward", "ForwardConfig": { "TargetGroups": [ { "Weight": 100, "ServiceName": "{{ .Values.appName }}", "ServicePort": "{{ (index .Values.service.ports 0).port }}" } ] } }'
     alb.ingress.kubernetes.io/tags: Owner=santiago.hernandez@strike.sh,Environment={{ .Values.envShort }},Monitoring=Datadog,ContainsUserData=true,UserDataStored=false,Description=InternalALBGroup,Repo=helm-apps
     external-dns.alpha.kubernetes.io/hostname: {{ .Values.appName }}.{{ .Values.envShort }}.{{ .Values.ingress.domain }}

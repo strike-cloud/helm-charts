@@ -11,7 +11,7 @@ metadata:
     alb.ingress.kubernetes.io/security-groups: {{ .Values.ingress.sg }}
     alb.ingress.kubernetes.io/healthcheck-path: {{ .Values.healthcheck.path }}
     alb.ingress.kubernetes.io/group.name: {{ .Values.ingress.group }}
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443},{"HTTP":80}]'
     alb.ingress.kubernetes.io/certificate-arn: {{ .Values.ingress.certificate }}
     alb.ingress.kubernetes.io/load-balancer-attributes: deletion_protection.enabled=true,routing.http.preserve_host_header.enabled=true,routing.http.xff_header_processing.mode=preserve,idle_timeout.timeout_seconds=300
     alb.ingress.kubernetes.io/actions.{{ .Values.appName }}: '{ "Type": "forward", "ForwardConfig": { "TargetGroups": [ { "Weight": 100, "ServiceName": "{{ .Values.appName }}", "ServicePort": "{{ (index .Values.service.ports 0).port }}" } ] } }'

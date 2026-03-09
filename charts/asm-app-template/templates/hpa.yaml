@@ -38,10 +38,10 @@ spec:
         averageUtilization: {{ .Values.hpa.memory }}
   {{- end }}
   {{- if .Values.hpa.requests }}
-  - type: Pod
-      pods:
-        metric: 
-          name: http_requests
+  - type: Pods
+    pods:
+      metric:
+        name: http_requests
       target:
         type: AverageValue
         averageValue: {{ .Values.hpa.requests }}

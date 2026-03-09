@@ -18,7 +18,7 @@ healthcheck:
   readinessFailure: 2
   readinessDelay: 20
   livenessSuccess: 1
-  livenessFailure: 2
+  livenessFailure: 3
   livenessDelay: 20
   period: 10
   timeout: 5

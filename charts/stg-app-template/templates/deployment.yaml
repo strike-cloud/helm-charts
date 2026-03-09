@@ -21,11 +21,14 @@ spec:
   selector:
     matchLabels:
       app:  {{ .Values.appName }}
+  {{- $effectiveReplicas := ternary .Values.hpa.minReplicas .Values.replicaCount .Values.hpa.enabled }}
   strategy:
     type: {{ .Values.deployment.strategy }}
+    {{- if eq .Values.deployment.strategy "RollingUpdate" }}
     rollingUpdate:
-      maxUnavailable: {{ if eq (int .Values.replicaCount) 1 }}0{{ else }}1{{ end }}
-      maxSurge: {{ if eq (int .Values.replicaCount) 1 }}1{{ else }}0{{ end }}
+      maxUnavailable: {{ if eq (int $effectiveReplicas) 1 }}0{{ else }}1{{ end }}
+      maxSurge: {{ if eq (int $effectiveReplicas) 1 }}1{{ else }}0{{ end }}
+    {{- end }}
   template:
     metadata:
       labels:
@@ -41,7 +44,7 @@ spec:
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: "kubernetes.io/hostname"
-          whenUnsatisfiable: ScheduleAnyway
+          whenUnsatisfiable: DoNotSchedule
           labelSelector:
             matchLabels:
               app: {{ .Values.appName }}

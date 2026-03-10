@@ -154,6 +154,7 @@ spec:
           {{- end }}
           failureThreshold: 30
           periodSeconds: {{ .Values.healthcheck.period }}
+          timeoutSeconds: {{ .Values.healthcheck.timeout }}
         lifecycle:
           preStop:
             exec:

@@ -3,6 +3,16 @@ entries:
   asm-app-template:
   - apiVersion: v1
     appVersion: 2.0.0
+    created: "2026-04-21T12:26:30.344383576Z"
+    description: A Helm chart for Kubernetes
+    digest: ee135ebb2b154811e53c7c94063ad886e9db99afee6d92e02f48b10948daad50
+    name: asm-app-template
+    type: application
+    urls:
+    - https://github.com/strike-cloud/helm-charts/releases/download/asm-app-template-1.0.62/asm-app-template-1.0.62.tgz
+    version: 1.0.62
+  - apiVersion: v1
+    appVersion: 2.0.0
     created: "2026-03-10T17:33:26.411100039Z"
     description: A Helm chart for Kubernetes
     digest: e8fb953f83e6e35bec9ddcac9a38e307b0ca94d4d9417ce304052b6bd2433dcd
@@ -182,6 +192,16 @@ entries:
     - https://github.com/strike-cloud/helm-charts/releases/download/asm-app-template-1.0.44/asm-app-template-1.0.44.tgz
     version: 1.0.44
   live-app-template:
+  - apiVersion: v1
+    appVersion: 2.0.0
+    created: "2026-04-21T12:26:30.462962986Z"
+    description: A Helm chart for Kubernetes
+    digest: 9263c3604049b0413a33f9be4ac7a74d51f48db112620ecf49cd834345b7d993
+    name: live-app-template
+    type: application
+    urls:
+    - https://github.com/strike-cloud/helm-charts/releases/download/live-app-template-1.0.62/live-app-template-1.0.62.tgz
+    version: 1.0.62
   - apiVersion: v1
     appVersion: 2.0.0
     created: "2026-03-10T17:33:26.610812611Z"
@@ -733,6 +753,16 @@ entries:
     - https://github.com/strike-cloud/helm-charts/releases/download/live-app-template-1.0.0/live-app-template-1.0.0.tgz
     version: 1.0.0
   stg-app-template:
+  - apiVersion: v1
+    appVersion: 2.0.0
+    created: "2026-04-21T12:26:30.60369654Z"
+    description: A Helm chart for Kubernetes
+    digest: 062dfa692c53b616c0c61c1cdab84207696580e46a422f299644691fd204f111
+    name: stg-app-template
+    type: application
+    urls:
+    - https://github.com/strike-cloud/helm-charts/releases/download/stg-app-template-1.0.62/stg-app-template-1.0.62.tgz
+    version: 1.0.62
   - apiVersion: v1
     appVersion: 2.0.0
     created: "2026-03-10T17:33:26.799992355Z"
@@ -1343,4 +1373,4 @@ entries:
     urls:
     - https://github.com/strike-cloud/helm-charts/releases/download/stg-app-template-1.0.0/stg-app-template-1.0.0.tgz
     version: 1.0.0
-generated: "2026-03-10T17:33:26.800765276Z"
+generated: "2026-04-21T12:26:30.604313571Z"

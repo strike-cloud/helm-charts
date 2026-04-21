@@ -1,13 +1,15 @@
 {{- if or (eq .Values.type "app") (eq .Values.type "worker") }}
 {{- $effectiveReplicas := ternary .Values.hpa.minReplicas .Values.replicaCount .Values.hpa.enabled }}
+{{- if gt (int $effectiveReplicas) 1 }}
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: {{ .Values.appName }}-pdb
   namespace: {{ .Values.namespace }}
 spec:
-  maxUnavailable: {{ if eq (int $effectiveReplicas) 1 }}0{{ else }}1{{ end }}
+  maxUnavailable: 1
   selector:
     matchLabels:
       app: {{ .Values.appName }}
+{{- end }}
 {{- end }}

@@ -9,6 +9,10 @@ metadata:
     env: {{ .Values.envShort }}
 spec:
   schedule: "{{ .Values.cronjob.schedule }}"
+  concurrencyPolicy: {{ .Values.cronjob.concurrencyPolicy | default "Forbid" }}
+  startingDeadlineSeconds: {{ .Values.cronjob.startingDeadlineSeconds | default 300 }}
+  successfulJobsHistoryLimit: {{ .Values.cronjob.successfulJobsHistoryLimit | default 3 }}
+  failedJobsHistoryLimit: {{ .Values.cronjob.failedJobsHistoryLimit | default 3 }}
   jobTemplate:
     spec:
       template:

@@ -22,9 +22,10 @@ spec:
     matchLabels:
       app:  {{ .Values.appName }}
   {{- $effectiveReplicas := ternary .Values.hpa.minReplicas .Values.replicaCount .Values.hpa.enabled }}
+  {{- $strategy := ternary "Recreate" .Values.deployment.strategy .Values.resources.volume.enabled }}
   strategy:
-    type: {{ .Values.deployment.strategy }}
-    {{- if eq .Values.deployment.strategy "RollingUpdate" }}
+    type: {{ $strategy }}
+    {{- if eq $strategy "RollingUpdate" }}
     rollingUpdate:
       maxUnavailable: {{ if eq (int $effectiveReplicas) 1 }}0{{ else }}1{{ end }}
       maxSurge: {{ if eq (int $effectiveReplicas) 1 }}1{{ else }}0{{ end }}

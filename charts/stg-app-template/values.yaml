@@ -36,6 +36,26 @@ resources:
 replicaCount: 1
 deployment:
   strategy: RollingUpdate
+  # Override rolling-update surge / unavailable. Leave unset to use the
+  # chart default, which is based on the *effective* replica count
+  # (hpa.minReplicas when HPA is enabled, otherwise replicaCount):
+  #   effectiveReplicas == 1 -> maxSurge:1, maxUnavailable:0
+  #   effectiveReplicas  > 1 -> maxSurge:0, maxUnavailable:1
+  # Recommended for HA HTTP-serving apps: maxSurge:1, maxUnavailable:0.
+  # maxSurge: 1
+  # maxUnavailable: 0
+  # Seconds to sleep before SIGTERM in preStop, to let the ALB drain in-flight
+  # requests before the container stops accepting connections. Bounded by
+  # terminationGracePeriodSeconds below — keep at least ~30s of headroom.
+  # Default 25 covers the ALB target-group deregistration window. Set to 0
+  # to opt out (e.g. for workers where graceful drain has no effect).
+  preStopDrainSeconds: 25
+  # Pod terminationGracePeriodSeconds. Must be greater than preStopDrainSeconds.
+  terminationGracePeriodSeconds: 60
+  topologySpread:
+    # Set to DoNotSchedule to force pods onto distinct nodes (stricter HA;
+    # may leave pods Pending if the cluster lacks enough distinct nodes).
+    whenUnsatisfiable: ScheduleAnyway
   specs:
     labels:
       example: thislabel
@@ -54,6 +74,21 @@ ingress:
   domain: westrike.top
   group: "core"
   certificate: arn:aws:acm:us-east-2:317814227242:certificate/614d5719-349a-4933-acce-ddf7d4239ce8
+  # Per-target-group ALB attributes (comma-separated key=value pairs).
+  # Recommended for graceful pod drain: "deregistration_delay.timeout_seconds=30"
+  # Leave empty to use AWS defaults.
+  targetGroupAttributes: ""
+  # ALB target-group health check tuning. Each field, when empty, falls back
+  # to the AWS default (interval=15s, timeout=5s, healthy=5, unhealthy=2 for
+  # ip targets). Bumping `unhealthyThreshold` to e.g. 5 gives ~75s of
+  # tolerance before a target is marked unhealthy — useful for HA apps that
+  # share an ALB ingress group and occasionally see transient probe slowness
+  # during reconciliation bursts.
+  healthcheck:
+    intervalSeconds: ""
+    timeoutSeconds: ""
+    healthyThreshold: ""
+    unhealthyThreshold: ""
   # extraHosts: Additional hosts to expose with the same configuration
   # Example:
   # extraHosts:

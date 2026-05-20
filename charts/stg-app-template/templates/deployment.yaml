@@ -1,4 +1,10 @@
 {{- if or (eq .Values.type "app") (eq .Values.type "worker") }}
+{{- /* Guard: terminationGracePeriodSeconds must exceed preStopDrainSeconds. */ -}}
+{{- $tgps := int (.Values.deployment.terminationGracePeriodSeconds | default 60) -}}
+{{- $drain := int (.Values.deployment.preStopDrainSeconds | default 0) -}}
+{{- if and (gt $drain 0) (le $tgps $drain) -}}
+{{- fail (printf "deployment.preStopDrainSeconds (%d) must be < deployment.terminationGracePeriodSeconds (%d); otherwise the kubelet will SIGKILL the pod before the drain completes" $drain $tgps) -}}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -27,8 +33,16 @@ spec:
     type: {{ $strategy }}
     {{- if eq $strategy "RollingUpdate" }}
     rollingUpdate:
+      {{- if hasKey .Values.deployment "maxUnavailable" }}
+      maxUnavailable: {{ .Values.deployment.maxUnavailable }}
+      {{- else }}
       maxUnavailable: {{ if eq (int $effectiveReplicas) 1 }}0{{ else }}1{{ end }}
+      {{- end }}
+      {{- if hasKey .Values.deployment "maxSurge" }}
+      maxSurge: {{ .Values.deployment.maxSurge }}
+      {{- else }}
       maxSurge: {{ if eq (int $effectiveReplicas) 1 }}1{{ else }}0{{ end }}
+      {{- end }}
     {{- end }}
   template:
     metadata:
@@ -45,12 +59,12 @@ spec:
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: "kubernetes.io/hostname"
-          whenUnsatisfiable: ScheduleAnyway
+          whenUnsatisfiable: {{ .Values.deployment.topologySpread.whenUnsatisfiable | default "ScheduleAnyway" }}
           labelSelector:
             matchLabels:
               app: {{ .Values.appName }}
               # timestamp: {{ date "20060102150405" now | quote }}
-      terminationGracePeriodSeconds: 60
+      terminationGracePeriodSeconds: {{ .Values.deployment.terminationGracePeriodSeconds | default 60 }}
       {{- if .Values.noInterrupt.enabled }}
       serviceAccountName: no-interrupt-sa
       {{- end }}
@@ -159,7 +173,12 @@ spec:
         lifecycle:
           preStop:
             exec:
+              {{- $drain := int (.Values.deployment.preStopDrainSeconds | default 0) }}
+              {{- if gt $drain 0 }}
+              command: ["/bin/sh", "-c", "sleep {{ $drain }} && kill -TERM 1 && while kill -0 1 2>/dev/null; do sleep 1; done"]
+              {{- else }}
               command: ["/bin/sh", "-c", "kill -TERM 1 && while kill -0 1 2>/dev/null; do sleep 1; done"]
+              {{- end }}
         env:
         {{- range $key, $value := .Values.environments }}
         - name: {{ $key }}

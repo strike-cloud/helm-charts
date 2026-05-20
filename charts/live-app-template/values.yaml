@@ -76,6 +76,17 @@ ingress:
   # Recommended for graceful pod drain: "deregistration_delay.timeout_seconds=30"
   # Leave empty to use AWS defaults.
   targetGroupAttributes: ""
+  # ALB target-group health check tuning. Each field, when empty, falls back
+  # to the AWS default (interval=15s, timeout=5s, healthy=5, unhealthy=2 for
+  # ip targets). Bumping `unhealthyThreshold` to e.g. 5 gives ~75s of
+  # tolerance before a target is marked unhealthy — useful for HA apps that
+  # share an ALB ingress group and occasionally see transient probe slowness
+  # during reconciliation bursts.
+  healthcheck:
+    intervalSeconds: ""
+    timeoutSeconds: ""
+    healthyThreshold: ""
+    unhealthyThreshold: ""
   # extraHosts: Additional hosts to expose with the same configuration
   # Example:
   # extraHosts:

@@ -37,8 +37,10 @@ replicaCount: 2
 deployment:
   strategy: RollingUpdate
   # Override rolling-update surge / unavailable. Leave unset to use the
-  # chart default (replicas==1 -> maxSurge:1,maxUnavailable:0;
-  #                replicas>1  -> maxSurge:0,maxUnavailable:1).
+  # chart default, which is based on the *effective* replica count
+  # (hpa.minReplicas when HPA is enabled, otherwise replicaCount):
+  #   effectiveReplicas == 1 -> maxSurge:1, maxUnavailable:0
+  #   effectiveReplicas  > 1 -> maxSurge:0, maxUnavailable:1
   # Recommended for HA HTTP-serving apps: maxSurge:1, maxUnavailable:0.
   # maxSurge: 1
   # maxUnavailable: 0

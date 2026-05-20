@@ -1,4 +1,10 @@
 {{- if or (eq .Values.type "app") (eq .Values.type "worker") }}
+{{- /* Guard: terminationGracePeriodSeconds must exceed preStopDrainSeconds. */ -}}
+{{- $tgps := int (.Values.deployment.terminationGracePeriodSeconds | default 60) -}}
+{{- $drain := int (.Values.deployment.preStopDrainSeconds | default 0) -}}
+{{- if and (gt $drain 0) (le $tgps $drain) -}}
+{{- fail (printf "deployment.preStopDrainSeconds (%d) must be < deployment.terminationGracePeriodSeconds (%d); otherwise the kubelet will SIGKILL the pod before the drain completes" $drain $tgps) -}}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

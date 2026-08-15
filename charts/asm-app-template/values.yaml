@@ -73,7 +73,7 @@ ingress:
   sg: "sg_internal"
   domain: westrike.top
   group: "core"
-  certificate: arn:aws:acm:us-east-1:287981551800:certificate/7b97d133-a5e6-4d9f-bef7-f77f8aab38f9
+  certificate: arn:aws:acm:us-east-1:287981551800:certificate/237e5179-2657-44ea-ab57-26c00f7741e7
   # Per-target-group ALB attributes (comma-separated key=value pairs).
   # Recommended for graceful pod drain: "deregistration_delay.timeout_seconds=30"
   # Leave empty to use AWS defaults.

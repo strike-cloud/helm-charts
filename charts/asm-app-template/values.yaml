@@ -11,6 +11,9 @@ type: app
 # Only needed for cronjob type
 cronjob:
   schedule: "* * * * *"
+  # Override the image entrypoint. Omit both to run the image CMD.
+  # command: ["/bin/sh", "-c", "echo hello"]
+  # args: ["--flag", "value"]
 healthcheck:
   type: http
   path: /

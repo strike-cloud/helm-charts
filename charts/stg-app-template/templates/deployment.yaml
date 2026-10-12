@@ -65,9 +65,8 @@ spec:
               app: {{ .Values.appName }}
               # timestamp: {{ date "20060102150405" now | quote }}
       terminationGracePeriodSeconds: {{ .Values.deployment.terminationGracePeriodSeconds | default 60 }}
-      {{- if .Values.noInterrupt.enabled }}
-      serviceAccountName: no-interrupt-sa
-      {{- end }}
+      # Always set: if omitted, Kubernetes restores the old value from the deprecated serviceAccount field.
+      serviceAccountName: {{ if .Values.noInterrupt.enabled }}{{ .Values.appName }}-no-interrupt{{ else }}default{{ end }}
       containers:
       - name:  {{ .Values.appName }}
         {{- if contains "/" .Values.image }}
